@@ -1,0 +1,21 @@
+{
+  "profile": {
+    "givenName": "SAN",
+    "familyName": "ZHANG",
+    "dateOfBirth": "1998-01-01",
+    "passportNumber": "E12345678",
+    "passportExpiry": "2033-01-01",
+    "nationality": "CN"
+  },
+  "credentials": {
+    "email": "your-account@example.com",
+    "password": "replace-me"
+  },
+  "files": {
+    "passportBio": "F:/docs/passport-bio.pdf",
+    "photo": "F:/docs/photo.jpg"
+  },
+  "meta": {
+    "phone": "+86-13800000000"
+  }
+}

@@ -1,0 +1,342 @@
+{
+  "name": "INZ China Working Holiday Scheme",
+  "timezone": "Pacific/Auckland",
+  "browser": {
+    "headless": false,
+    "slowMo": 0,
+    "channel": "chrome",
+    "userDataDir": ".session/inz-china-whs",
+    "viewport": {
+      "width": 1440,
+      "height": 960
+    }
+  },
+  "urls": {
+    "login": "https://onlineservices.immigration.govt.nz/?WHS",
+    "holding": "https://onlineservices.immigration.govt.nz/WorkingHoliday/Application/Create.aspx?CountryId=46&OffShore=1&STZ=0",
+    "application": "https://onlineservices.immigration.govt.nz/WorkingHoliday/Wizard/Personal1.aspx"
+  },
+  "defaults": {
+    "timeoutMs": 15000,
+    "navigationTimeoutMs": 30000,
+    "screenshotDir": "artifacts"
+  },
+  "phases": [
+    {
+      "name": "Open INZ entry page",
+      "action": "goto",
+      "url": "${site.urls.login}",
+      "waitUntil": "domcontentloaded"
+    },
+    {
+      "name": "Wait for login page to become available",
+      "action": "waitForOpen",
+      "selector": "input[name='username']",
+      "intervalMs": 10000,
+      "timeoutMs": 600000,
+      "reload": true
+    },
+    {
+      "name": "Fill username",
+      "action": "fill",
+      "selector": "input[name='username']",
+      "value": "${applicant.credentials.email}"
+    },
+    {
+      "name": "Fill password",
+      "action": "fill",
+      "selector": "input[name='password']",
+      "value": "${applicant.credentials.password}"
+    },
+    {
+      "name": "Submit login form",
+      "action": "click",
+      "selector": "input[type='submit']"
+    },
+    {
+      "name": "Wait for working holiday homepage",
+      "action": "waitForUrlChange",
+      "urlIncludes": "WorkingHoliday",
+      "timeoutMs": 900000
+    },
+    {
+      "name": "Go to China WHS entry page",
+      "action": "goto",
+      "url": "${site.urls.holding}",
+      "waitUntil": "domcontentloaded"
+    },
+    {
+      "name": "Wait for Apply Now to open",
+      "action": "waitForOpen",
+      "selector": "#ContentPlaceHolder1_applyNowButton",
+      "releaseAt": "${site.submit.releaseAt}",
+      "preReleaseIntervalMs": 30000,
+      "intervalMs": 1000,
+      "timeoutMs": 3600000,
+      "reload": true
+    },
+    {
+      "name": "Enter application page",
+      "action": "click",
+      "selector": "#ContentPlaceHolder1_applyNowButton"
+    }
+  ],
+  "submit": {
+    "mode": "manual",
+    "releaseAt": "2026-07-02T10:00:00+12:00",
+    "phase": [
+      {
+        "name": "Wait for personal page",
+        "action": "waitFor",
+        "selector": "#ContentPlaceHolder1_personDetails_familyNameTextBox",
+        "timeoutMs": 15000
+      },
+      {
+        "name": "Fill family name",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_personDetails_familyNameTextBox",
+        "value": "${applicant.profile.familyName}"
+      },
+      {
+        "name": "Fill given name 1",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_personDetails_givenName1Textbox",
+        "value": "${applicant.profile.givenName}"
+      },
+      {
+        "name": "Fill given name 2",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_personDetails_givenName2Textbox",
+        "value": "${applicant.profile.givenName2}"
+      },
+      {
+        "name": "Fill given name 3",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_personDetails_givenName3Textbox",
+        "value": "${applicant.profile.givenName3}"
+      },
+      {
+        "name": "Fill other names",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_personDetails_otherNamesTextBox",
+        "value": "${applicant.profile.otherNames}"
+      },
+      {
+        "name": "Select title",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_personDetails_titleDropDownList",
+        "value": "${applicant.profile.title}"
+      },
+      {
+        "name": "Select gender",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_personDetails_genderDropDownList",
+        "value": "${applicant.profile.gender}"
+      },
+      {
+        "name": "Fill date of birth",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_personDetails_dateOfBirthDatePicker_DatePicker",
+        "value": "${applicant.profile.dateOfBirth}"
+      },
+      {
+        "name": "Select country of birth",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_personDetails_CountryDropDownList",
+        "value": "${applicant.profile.countryOfBirth}"
+      },
+      {
+        "name": "Fill street number",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_address_streetNumberTextbox",
+        "value": "${applicant.address.streetNumber}"
+      },
+      {
+        "name": "Fill street name",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_address_address1TextBox",
+        "value": "${applicant.address.streetName}"
+      },
+      {
+        "name": "Fill suburb",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_address_suburbTextBox",
+        "value": "${applicant.address.suburb}"
+      },
+      {
+        "name": "Fill city",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_address_cityTextBox",
+        "value": "${applicant.address.city}"
+      },
+      {
+        "name": "Fill province or state",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_address_provinceStateTextBox",
+        "value": "${applicant.address.provinceState}"
+      },
+      {
+        "name": "Fill postal code",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_address_postalCodeTextBox",
+        "value": "${applicant.address.postalCode}"
+      },
+      {
+        "name": "Select address country",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_address_countryDropDownList",
+        "value": "${applicant.address.country}"
+      },
+      {
+        "name": "Fill daytime phone",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_contactDetails_phoneNumberTextBox",
+        "value": "${applicant.meta.phoneDay}"
+      },
+      {
+        "name": "Fill night phone",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_contactDetails_phoneNumberNightTextBox",
+        "value": "${applicant.meta.phoneNight}"
+      },
+      {
+        "name": "Fill mobile phone",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_contactDetails_phoneNumberMobileTextBox",
+        "value": "${applicant.meta.phoneMobile}"
+      },
+      {
+        "name": "Fill fax",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_contactDetails_faxNumberTextbox",
+        "value": "${applicant.meta.fax}"
+      },
+      {
+        "name": "Fill contact email",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_contactDetails_emailAddressTextBox",
+        "value": "${applicant.credentials.contactEmail}"
+      },
+      {
+        "name": "Select represented by agent",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_hasAgent_representedByAgentDropdownlist",
+        "value": "${applicant.meta.representedByAgent}"
+      },
+      {
+        "name": "Select communication method",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_communicationMethod_communicationMethodDropDownList",
+        "value": "${applicant.credentials.communicationMethod}"
+      },
+      {
+        "name": "Select has credit card",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_hasCreditCard_hasCreditCardDropDownlist",
+        "value": "${applicant.meta.hasCreditCard}"
+      },
+      {
+        "name": "Screenshot before submit",
+        "action": "screenshot",
+        "path": "china-whs-before-submit.png",
+        "fullPage": true
+      },
+      {
+        "name": "Pause before final submit",
+        "action": "pause",
+        "message": "The real Personal details page is loaded and both text fields and dropdown fields are filled. Review everything carefully, then press Enter to continue."
+      },
+      {
+        "name": "Go to identification page",
+        "action": "click",
+        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_nextImageButton"
+      },
+      {
+        "name": "Pause for CAPTCHA before identification",
+        "action": "pause",
+        "message": "If the site shows rs-captcha before Identification, complete it manually in the browser. Once the Identification page is visible, press Enter to continue."
+      },
+      {
+        "name": "Wait for identification page",
+        "action": "waitFor",
+        "selector": "#ContentPlaceHolder1_identification_passportNumberTextBox",
+        "timeoutMs": 600000
+      },
+      {
+        "name": "Fill passport number",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_identification_passportNumberTextBox",
+        "value": "${applicant.identification.passportNumber}"
+      },
+      {
+        "name": "Confirm passport number",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_identification_confirmPassportNumberTextBox",
+        "value": "${applicant.identification.passportNumber}"
+      },
+      {
+        "name": "Fill passport expiry",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_identification_passportExpiryDateDatePicker_DatePicker",
+        "value": "${applicant.identification.passportExpiry}"
+      },
+      {
+        "name": "Select second identification type",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_identification_otherIdentificationDropdownlist",
+        "value": "${applicant.identification.otherIdType}"
+      },
+      {
+        "name": "Fill second ID issue date",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_identification_otherIssueDateDatePicker_DatePicker",
+        "value": "${applicant.identification.otherIdIssuedAt}"
+      },
+      {
+        "name": "Fill second ID expiry date",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_identification_otherExpiryDateDatePicker_DatePicker",
+        "value": "${applicant.identification.otherIdExpiresAt}"
+      },
+      {
+        "name": "Screenshot before occupation page",
+        "action": "screenshot",
+        "path": "china-whs-identification.png",
+        "fullPage": true
+      },
+      {
+        "name": "Go to occupation page",
+        "action": "click",
+        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_nextImageButton"
+      },
+      {
+        "name": "Pause for CAPTCHA before occupation",
+        "action": "pause",
+        "message": "If the site shows rs-captcha before Occupation details, complete it manually in the browser. Once the Occupation details page is visible, press Enter to continue."
+      },
+      {
+        "name": "Wait for occupation page",
+        "action": "waitFor",
+        "selector": "#ContentPlaceHolder1_generalPersonal_industryControl_optionListSearch_SearchStringTextBox",
+        "timeoutMs": 600000
+      },
+      {
+        "name": "Fill industry search",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_generalPersonal_industryControl_optionListSearch_SearchStringTextBox",
+        "value": "${applicant.occupation.industrySearch}"
+      },
+      {
+        "name": "Fill occupation search",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_generalPersonal_occupationControl_optionListSearch_SearchStringTextBox",
+        "value": "${applicant.occupation.occupationSearch}"
+      },
+      {
+        "name": "Pause for occupation result selection",
+        "action": "pause",
+        "message": "Industry and occupation search terms are filled. Search and choose the correct results manually on the Occupation details page, then press Enter to continue."
+      }
+    ]
+  }
+}

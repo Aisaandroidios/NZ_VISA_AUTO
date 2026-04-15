@@ -1,0 +1,613 @@
+{
+  "name": "INZ China Working Holiday Scheme",
+  "timezone": "Pacific/Auckland",
+  "browser": {
+    "headless": false,
+    "slowMo": 0,
+    "channel": "chrome",
+    "userDataDir": ".session/inz-china-whs",
+    "viewport": {
+      "width": 1440,
+      "height": 960
+    }
+  },
+  "urls": {
+    "login": "https://onlineservices.immigration.govt.nz/?WHS",
+    "holding": "https://onlineservices.immigration.govt.nz/WorkingHoliday/Application/Create.aspx?CountryId=46&OffShore=1&STZ=0"
+  },
+  "defaults": {
+    "timeoutMs": 15000,
+    "navigationTimeoutMs": 30000,
+    "screenshotDir": "artifacts"
+  },
+  "phases": [
+    {
+      "name": "Open INZ entry page",
+      "action": "goto",
+      "url": "${site.urls.login}",
+      "waitUntil": "domcontentloaded"
+    },
+    {
+      "name": "Wait for login page or working holiday homepage",
+      "action": "waitForAny",
+      "selectors": [
+        "input[name='username']"
+      ],
+      "urlIncludesAny": [
+        "/WorkingHoliday/"
+      ],
+      "intervalMs": 1000,
+      "timeoutMs": 600000,
+      "state": "visible"
+    },
+    {
+      "name": "Fill username",
+      "action": "fillIfPresent",
+      "selector": "input[name='username']",
+      "value": "${applicant.credentials.email}"
+    },
+    {
+      "name": "Fill password",
+      "action": "fillIfPresent",
+      "selector": "input[name='password']",
+      "value": "${applicant.credentials.password}"
+    },
+    {
+      "name": "Submit login form",
+      "action": "clickIfPresent",
+      "selector": "input[type='submit']"
+    },
+    {
+      "name": "Wait after optional login submit",
+      "action": "sleep",
+      "durationMs": 5000
+    },
+    {
+      "name": "Go to China WHS entry page",
+      "action": "goto",
+      "url": "${site.urls.holding}",
+      "waitUntil": "domcontentloaded"
+    },
+    {
+      "name": "Wait for Apply Now to open",
+      "action": "waitForOpen",
+      "selector": "#ContentPlaceHolder1_applyNowButton",
+      "releaseAt": "${site.submit.releaseAt}",
+      "preReleaseIntervalMs": 30000,
+      "finalCountdownWindowMs": 120000,
+      "finalCountdownIntervalMs": 3000,
+      "intervalMs": 750,
+      "timeoutMs": 3600000,
+      "reload": true
+    },
+    {
+      "name": "Enter application page",
+      "action": "click",
+      "selector": "#ContentPlaceHolder1_applyNowButton"
+    },
+    {
+      "name": "Return to working holiday homepage if multiple applications message appears",
+      "action": "clickIfPresent",
+      "selector": "a:has-text('here')",
+      "timeoutMs": 10000
+    },
+    {
+      "name": "Wait after returning from multiple applications message",
+      "action": "sleep",
+      "durationMs": 5000
+    },
+    {
+      "name": "Open existing incomplete application if listed",
+      "action": "clickIfPresent",
+      "selector": "text=Edit",
+      "timeoutMs": 10000
+    },
+    {
+      "name": "Re-enter China application from forms list if present",
+      "action": "clickIfPresent",
+      "selector": "a[href*='CountryId=46']",
+      "timeoutMs": 10000
+    },
+    {
+      "name": "Wait after re-entering China application from forms list",
+      "action": "sleep",
+      "durationMs": 3000
+    }
+  ],
+  "submit": {
+    "mode": "manual",
+    "releaseAt": "2026-07-02T10:00:00+12:00",
+    "phase": [
+      {
+        "name": "Wait for personal page",
+        "action": "waitFor",
+        "selector": "#ContentPlaceHolder1_personDetails_familyNameTextBox",
+        "timeoutMs": 15000
+      },
+      {
+        "name": "Fill family name",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_personDetails_familyNameTextBox",
+        "value": "${applicant.profile.familyName}"
+      },
+      {
+        "name": "Fill given name 1",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_personDetails_givenName1Textbox",
+        "value": "${applicant.profile.givenName}"
+      },
+      {
+        "name": "Fill given name 2",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_personDetails_givenName2Textbox",
+        "value": "${applicant.profile.givenName2}"
+      },
+      {
+        "name": "Fill given name 3",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_personDetails_givenName3Textbox",
+        "value": "${applicant.profile.givenName3}"
+      },
+      {
+        "name": "Fill other names",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_personDetails_otherNamesTextBox",
+        "value": "${applicant.profile.otherNames}"
+      },
+      {
+        "name": "Select title",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_personDetails_titleDropDownList",
+        "value": "${applicant.profile.title}"
+      },
+      {
+        "name": "Select gender",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_personDetails_genderDropDownList",
+        "value": "${applicant.profile.gender}"
+      },
+      {
+        "name": "Fill date of birth",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_personDetails_dateOfBirthDatePicker_DatePicker",
+        "value": "${applicant.profile.dateOfBirth}"
+      },
+      {
+        "name": "Select country of birth",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_personDetails_CountryDropDownList",
+        "value": "${applicant.profile.countryOfBirth}"
+      },
+      {
+        "name": "Fill street number",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_address_streetNumberTextbox",
+        "value": "${applicant.address.streetNumber}"
+      },
+      {
+        "name": "Fill street name",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_address_address1TextBox",
+        "value": "${applicant.address.streetName}"
+      },
+      {
+        "name": "Fill suburb",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_address_suburbTextBox",
+        "value": "${applicant.address.suburb}"
+      },
+      {
+        "name": "Fill city",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_address_cityTextBox",
+        "value": "${applicant.address.city}"
+      },
+      {
+        "name": "Fill province or state",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_address_provinceStateTextBox",
+        "value": "${applicant.address.provinceState}"
+      },
+      {
+        "name": "Fill postal code",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_address_postalCodeTextBox",
+        "value": "${applicant.address.postalCode}"
+      },
+      {
+        "name": "Select address country",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_address_countryDropDownList",
+        "value": "${applicant.address.country}"
+      },
+      {
+        "name": "Fill daytime phone",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_contactDetails_phoneNumberTextBox",
+        "value": "${applicant.meta.phoneDay}"
+      },
+      {
+        "name": "Fill night phone",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_contactDetails_phoneNumberNightTextBox",
+        "value": "${applicant.meta.phoneNight}"
+      },
+      {
+        "name": "Fill mobile phone",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_contactDetails_phoneNumberMobileTextBox",
+        "value": "${applicant.meta.phoneMobile}"
+      },
+      {
+        "name": "Fill fax",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_contactDetails_faxNumberTextbox",
+        "value": "${applicant.meta.fax}"
+      },
+      {
+        "name": "Fill contact email",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_addressContactDetails_contactDetails_emailAddressTextBox",
+        "value": "${applicant.credentials.contactEmail}"
+      },
+      {
+        "name": "Select represented by agent",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_hasAgent_representedByAgentDropdownlist",
+        "value": "${applicant.meta.representedByAgent}"
+      },
+      {
+        "name": "Select communication method",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_communicationMethod_communicationMethodDropDownList",
+        "value": "${applicant.credentials.communicationMethod}"
+      },
+      {
+        "name": "Select has credit card",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_hasCreditCard_hasCreditCardDropDownlist",
+        "value": "${applicant.meta.hasCreditCard}"
+      },
+      {
+        "name": "Screenshot personal page before continue",
+        "action": "screenshot",
+        "path": "china-whs-before-submit.png",
+        "fullPage": true
+      },
+      {
+        "name": "Go to identification page",
+        "action": "click",
+        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_nextImageButton"
+      },
+      {
+        "name": "Pause for CAPTCHA before identification",
+        "action": "pause",
+        "message": "If the site shows rs-captcha before Identification, complete it manually in the browser. Once the Identification page is visible, press Enter to continue."
+      },
+      {
+        "name": "Wait for identification page",
+        "action": "waitFor",
+        "selector": "#ContentPlaceHolder1_identification_passportNumberTextBox",
+        "timeoutMs": 600000
+      },
+      {
+        "name": "Fill passport number",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_identification_passportNumberTextBox",
+        "value": "${applicant.identification.passportNumber}"
+      },
+      {
+        "name": "Confirm passport number",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_identification_confirmPassportNumberTextBox",
+        "value": "${applicant.identification.passportNumber}"
+      },
+      {
+        "name": "Fill passport expiry",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_identification_passportExpiryDateDatePicker_DatePicker",
+        "value": "${applicant.identification.passportExpiry}"
+      },
+      {
+        "name": "Select second identification type",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_identification_otherIdentificationDropdownlist",
+        "value": "${applicant.identification.otherIdType}"
+      },
+      {
+        "name": "Fill second ID issue date",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_identification_otherIssueDateDatePicker_DatePicker",
+        "value": "${applicant.identification.otherIdIssuedAt}"
+      },
+      {
+        "name": "Fill second ID expiry date",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_identification_otherExpiryDateDatePicker_DatePicker",
+        "value": "${applicant.identification.otherIdExpiresAt}"
+      },
+      {
+        "name": "Screenshot before occupation page",
+        "action": "screenshot",
+        "path": "china-whs-identification.png",
+        "fullPage": true
+      },
+      {
+        "name": "Go to occupation page",
+        "action": "click",
+        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_nextImageButton"
+      },
+      {
+        "name": "Pause for CAPTCHA before occupation",
+        "action": "pause",
+        "message": "If the site shows rs-captcha before Occupation details, complete it manually in the browser. Once the Occupation details page is visible, press Enter to continue."
+      },
+      {
+        "name": "Wait for occupation page",
+        "action": "waitFor",
+        "selector": "#ContentPlaceHolder1_generalPersonal_industryControl_optionListSearch_SearchStringTextBox",
+        "timeoutMs": 600000
+      },
+      {
+        "name": "Screenshot occupation page before skip",
+        "action": "screenshot",
+        "path": "china-whs-occupation-results.png",
+        "fullPage": true
+      },
+      {
+        "name": "Save occupation page and skip occupation details",
+        "action": "click",
+        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_validateButton"
+      },
+      {
+        "name": "Go to health page after occupation save",
+        "action": "click",
+        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_nextImageButton"
+      },
+      {
+        "name": "Pause for CAPTCHA before health",
+        "action": "pause",
+        "message": "If the site shows rs-captcha before Health, complete it manually in the browser. Once the Health page is visible, press Enter to continue."
+      },
+      {
+        "name": "Wait for health page",
+        "action": "waitFor",
+        "selector": "#ContentPlaceHolder1_medicalConditions_healthDetailsTextBox",
+        "timeoutMs": 600000
+      },
+      {
+        "name": "Select renal dialysis",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_medicalConditions_renalDialysisDropDownList",
+        "value": "${applicant.health.renalDialysis}"
+      },
+      {
+        "name": "Select tuberculosis",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_medicalConditions_tuberculosisDropDownList",
+        "value": "${applicant.health.tuberculosis}"
+      },
+      {
+        "name": "Select cancer",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_medicalConditions_cancerDropDownList",
+        "value": "${applicant.health.cancer}"
+      },
+      {
+        "name": "Select heart disease",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_medicalConditions_heartDiseaseDropDownList",
+        "value": "${applicant.health.heartDisease}"
+      },
+      {
+        "name": "Select disability",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_medicalConditions_disabilityDropDownList",
+        "value": "${applicant.health.disability}"
+      },
+      {
+        "name": "Select hospitalisation",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_medicalConditions_hospitalisationDropDownList",
+        "value": "${applicant.health.hospitalisation}"
+      },
+      {
+        "name": "Select residential care",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_medicalConditions_residentailCareDropDownList",
+        "value": "${applicant.health.residentialCare}"
+      },
+      {
+        "name": "Fill health details",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_medicalConditions_healthDetailsTextBox",
+        "value": "${applicant.health.healthDetails}"
+      },
+      {
+        "name": "Select TB risk",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_medicalConditions_tbRiskDropDownList",
+        "value": "${applicant.health.tbRisk}"
+      },
+      {
+        "name": "Go to character page",
+        "action": "click",
+        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_nextImageButton"
+      },
+      {
+        "name": "Pause for CAPTCHA before character",
+        "action": "pause",
+        "message": "If the site shows rs-captcha before Character, complete it manually in the browser. Once the Character page is visible, press Enter to continue."
+      },
+      {
+        "name": "Wait for character page",
+        "action": "waitFor",
+        "selector": "#ContentPlaceHolder1_character_excludeRemovedDetailsTextBox",
+        "timeoutMs": 600000
+      },
+      {
+        "name": "Select imprisonment 5 years",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_character_imprisonment5YearsDropDownList",
+        "value": "${applicant.character.imprisonment5Years}"
+      },
+      {
+        "name": "Select imprisonment 12 months",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_character_imprisonment12MonthsDropDownList",
+        "value": "${applicant.character.imprisonment12Months}"
+      },
+      {
+        "name": "Select deported",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_character_deportedDropDownList",
+        "value": "${applicant.character.deported}"
+      },
+      {
+        "name": "Fill deported date",
+        "action": "fillIfValue",
+        "selector": "#ContentPlaceHolder1_character_deportedDateDatePicker_DatePicker",
+        "value": "${applicant.character.deportedDate}"
+      },
+      {
+        "name": "Select deported country",
+        "action": "selectIfValue",
+        "selector": "#ContentPlaceHolder1_character_countryDropDownList",
+        "value": "${applicant.character.deportedCountry}"
+      },
+      {
+        "name": "Select charged",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_character_chargedDropDownList",
+        "value": "${applicant.character.charged}"
+      },
+      {
+        "name": "Select convicted",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_character_convictedDropDownList",
+        "value": "${applicant.character.convicted}"
+      },
+      {
+        "name": "Select under investigation",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_character_underInvestigationDropDownList",
+        "value": "${applicant.character.underInvestigation}"
+      },
+      {
+        "name": "Select excluded",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_character_excludedDropDownList",
+        "value": "${applicant.character.excluded}"
+      },
+      {
+        "name": "Select removed",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_character_removedDropDownList",
+        "value": "${applicant.character.removed}"
+      },
+      {
+        "name": "Fill character details",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_character_excludeRemovedDetailsTextBox",
+        "value": "${applicant.character.excludeRemovedDetails}"
+      },
+      {
+        "name": "Go to WHS specific page",
+        "action": "click",
+        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_nextImageButton"
+      },
+      {
+        "name": "Pause for CAPTCHA before WHS specific",
+        "action": "pause",
+        "message": "If the site shows rs-captcha before WHS Specific, complete it manually in the browser. Once the WHS Specific page is visible, press Enter to continue."
+      },
+      {
+        "name": "Wait for WHS specific page",
+        "action": "waitFor",
+        "selector": "text=Working Holiday Specific",
+        "timeoutMs": 600000
+      },
+      {
+        "name": "Select previous WHS permit visa",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_offshoreDetails_commonWHSQuestions_previousWhsPermitVisaDropDownList",
+        "value": "${applicant.whsSpecific.previousWhsPermitVisa}"
+      },
+      {
+        "name": "Select sufficient funds for holiday",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_offshoreDetails_commonWHSQuestions_sufficientFundsHolidayDropDownList",
+        "value": "${applicant.whsSpecific.sufficientFundsHoliday}"
+      },
+      {
+        "name": "Fill intended travel date",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_offshoreDetails_intendedTravelDateDatePicker_DatePicker",
+        "value": "${applicant.whsSpecific.intendedTravelDate}"
+      },
+      {
+        "name": "Select been to New Zealand",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_offshoreDetails_beenToNzDropDownList",
+        "value": "${applicant.whsSpecific.beenToNz}"
+      },
+      {
+        "name": "Fill when in New Zealand",
+        "action": "fill",
+        "selector": "#ContentPlaceHolder1_offshoreDetails_whenInNZDatePicker_DatePicker",
+        "value": "${applicant.whsSpecific.whenInNZ}"
+      },
+      {
+        "name": "Select sufficient funds for onward ticket",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_offshoreDetails_requirementsQuestions_sufficientFundsOnwardTicketDropDownList",
+        "value": "${applicant.whsSpecific.sufficientFundsOnwardTicket}"
+      },
+      {
+        "name": "Select read requirements",
+        "action": "select",
+        "selector": "#ContentPlaceHolder1_offshoreDetails_requirementsQuestions_readRequirementsDropDownList",
+        "value": "${applicant.whsSpecific.readRequirements}"
+      },
+      {
+        "name": "Screenshot WHS specific before save",
+        "action": "screenshot",
+        "path": "china-whs-specific-before-save.png",
+        "fullPage": true
+      },
+      {
+        "name": "Save WHS specific page",
+        "action": "click",
+        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_validateButton"
+      },
+      {
+        "name": "Pause for CAPTCHA after WHS specific save",
+        "action": "pause",
+        "message": "If saving WHS Specific sends the site to rs-captcha or a review/declaration page behind CAPTCHA, complete it manually in the browser. The script will continue after the CAPTCHA page clears."
+      },
+      {
+        "name": "Click non-final submit to open confirm submit page",
+        "action": "clickIfPageTextContains",
+        "text": "Working Holiday Specific",
+        "selector": "text=SUBMIT",
+        "timeoutMs": 10000
+      },
+      {
+        "name": "Auto-agree confirm submit declarations if page is open",
+        "action": "selectVisibleYesRadios",
+        "text": "Confirm Submit"
+      },
+      {
+        "name": "Screenshot confirm submit page after auto-agree",
+        "action": "screenshot",
+        "path": "china-confirm-submit-auto-agree.png",
+        "fullPage": true
+      },
+      {
+        "name": "Pause at final manual takeover before real submit",
+        "action": "pause",
+        "message": "The application is now at the final confirmation stage. Review the Confirm Submit page and take over manually for the final real Submit and any payment steps."
+      }
+    ]
+  }
+}

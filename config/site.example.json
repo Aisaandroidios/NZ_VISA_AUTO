@@ -1,0 +1,75 @@
+{
+  "name": "Generic visa form",
+  "timezone": "Pacific/Auckland",
+  "browser": {
+    "headless": false,
+    "slowMo": 0,
+    "channel": "chrome",
+    "userDataDir": ".session/generic",
+    "viewport": {
+      "width": 1440,
+      "height": 960
+    }
+  },
+  "urls": {
+    "login": "https://example.com/login",
+    "apply": "https://example.com/apply"
+  },
+  "defaults": {
+    "timeoutMs": 15000,
+    "navigationTimeoutMs": 30000,
+    "screenshotDir": "artifacts"
+  },
+  "phases": [
+    {
+      "name": "Open login page",
+      "action": "goto",
+      "url": "${site.urls.login}",
+      "waitUntil": "domcontentloaded"
+    },
+    {
+      "name": "Pause for captcha or MFA",
+      "action": "pause",
+      "message": "Complete login/captcha manually in the browser, then press Enter here."
+    },
+    {
+      "name": "Wait until login redirects",
+      "action": "waitForUrlChange",
+      "urlIncludes": "/dashboard",
+      "timeoutMs": 600000
+    }
+  ],
+  "submit": {
+    "mode": "manual",
+    "releaseAt": "2026-07-02T10:00:00+12:00",
+    "phase": [
+      {
+        "name": "Open final form page",
+        "action": "goto",
+        "url": "${site.urls.apply}"
+      },
+      {
+        "name": "Fill given name",
+        "action": "fill",
+        "selector": "input[name='givenName']",
+        "value": "${applicant.profile.givenName}"
+      },
+      {
+        "name": "Upload passport bio page",
+        "action": "upload",
+        "selector": "input[type='file'][name='passportBio']",
+        "path": "${applicant.files.passportBio}"
+      },
+      {
+        "name": "Accept declaration",
+        "action": "check",
+        "selector": "input[name='declaration']"
+      },
+      {
+        "name": "Click submit",
+        "action": "click",
+        "selector": "button[type='submit']"
+      }
+    ]
+  }
+}
