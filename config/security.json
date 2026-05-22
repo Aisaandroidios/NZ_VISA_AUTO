@@ -1,0 +1,5 @@
+{
+  "requireLicense": true,
+  "licensePath": "license.json",
+  "publicKeyPath": "license-public.pem"
+}
