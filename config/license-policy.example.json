@@ -1,5 +1,5 @@
 {
-  "licenseModel": "offline signed customer package",
+  "licenseModel": "离线签名客户授权包 / offline signed customer package",
   "lockedFields": [
     "profile.familyName",
     "profile.givenName",
@@ -17,5 +17,5 @@
     "whsSpecific",
     "meta"
   ],
-  "publicRepositoryNotice": "Issued license files and private signing keys are not published."
+  "publicRepositoryNotice": "已签发许可证和签名私钥不会发布到公开仓库。 / Issued license files and private signing keys are not published."
 }

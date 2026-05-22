@@ -1,25 +1,77 @@
-# User Runbook
+# User Runbook / 用户运行说明
 
-This guide is for customers who receive a private licensed zip package.
+## 中文
 
-## First-Time Setup
+本文档适用于已经收到私有授权 zip 包的用户。
 
-1. Extract the zip package.
-2. Open the extracted folder.
-3. Double-click `install-browser.bat`.
-4. Wait until the install window says the runtime install is finished.
+### 第一次安装
 
-## Test Run
+1. 解压开发者发来的 zip 包。
+2. 打开解压后的文件夹。
+3. 双击 `install-browser.bat`。
+4. 等待窗口提示浏览器运行环境安装完成。
 
-Before a real application opening, run the rehearsal flow:
+这个步骤通常只需要做一次。如果换电脑或删除了运行环境，可以重新运行。
+
+### 德国测试流程
+
+正式申请前建议先运行测试流程：
 
 ```text
 run-test-pre-submit.bat
 ```
 
-The test flow is used to confirm browser setup, login state, form filling, CAPTCHA handoff, and the final manual review page.
+测试流程用于确认浏览器、登录状态、表单填写、CAPTCHA 人工处理和最终确认页是否正常。
 
-## Real China Flow
+### 中国正式流程
+
+正式申请时运行：
+
+```text
+run-real-china-pre-submit.bat
+```
+
+工具会等待申请入口开放，并在 `Apply Now` 按钮出现后立即点击。进入表单后会自动填写配置中的信息。
+
+### CAPTCHA
+
+如果网站出现 CAPTCHA，请在浏览器中手动完成。工具会等待页面恢复，恢复后继续执行。
+
+### 最终提交
+
+工具会停在最终真实提交和付款前。请用户本人仔细检查所有页面信息，确认无误后再手动完成最终步骤。
+
+### 常见问题
+
+- 浏览器打不开：重新运行 `install-browser.bat`。
+- 登录失败：检查 `config/applicant.json` 里的 INZ 用户名和密码。
+- 许可证不匹配：检查姓名和出生日期是否被修改。
+- 网页卡住：先看浏览器是否正在等待 CAPTCHA 或网站响应。
+
+## English
+
+This guide is for customers who have received a private licensed zip package.
+
+### First-Time Setup
+
+1. Extract the zip package from the developer.
+2. Open the extracted folder.
+3. Double-click `install-browser.bat`.
+4. Wait until the runtime installation window finishes.
+
+This step usually needs to be done only once. Run it again if the computer changes or the runtime is removed.
+
+### Germany Rehearsal Flow
+
+Before the real application opening, run the rehearsal flow:
+
+```text
+run-test-pre-submit.bat
+```
+
+The test flow confirms browser setup, login state, form filling, manual CAPTCHA handoff, and final confirmation page access.
+
+### Real China Flow
 
 At the real application time, run:
 
@@ -27,18 +79,19 @@ At the real application time, run:
 run-real-china-pre-submit.bat
 ```
 
-The tool will watch for the application entry and click `Apply Now` as soon as the button becomes available.
+The tool waits for the application entry and clicks `Apply Now` immediately when the button becomes available. After entering the form, it fills values from the configuration.
 
-## CAPTCHA
+### CAPTCHA
 
-If CAPTCHA appears, complete it manually in the browser. The tool waits and continues after the page clears.
+If CAPTCHA appears, complete it manually in the browser. The tool waits for the page to clear and then continues.
 
-## Final Review
+### Final Submission
 
-The tool stops before the final real government submission/payment step. Review the page carefully and take over manually.
+The tool stops before the final real submission and payment. The applicant must review all page information and complete the final step manually.
 
-## Common Fixes
+### Common Issues
 
-- If the browser does not open, run `install-browser.bat` again.
-- If login fails, check the INZ username and password in `config/applicant.json`.
-- If the package says the license does not match, check that the applicant name and date of birth were not changed.
+- Browser does not open: run `install-browser.bat` again.
+- Login fails: check the INZ username and password in `config/applicant.json`.
+- License mismatch: check whether name or date of birth was changed.
+- Page appears stuck: check whether the browser is waiting for CAPTCHA or site response.

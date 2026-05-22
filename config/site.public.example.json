@@ -16,8 +16,8 @@
     "navigationDelayMs": 1000
   },
   "notes": [
-    "This is a public documentation example only.",
-    "Production selectors and private automation logic are not included in this repository.",
-    "Private licensed packages include the actual runtime."
+    "这是公开文档示例，不是生产配置。 / This is a public documentation example, not a production config.",
+    "生产选择器和私有自动化逻辑不会放在公开仓库里。 / Production selectors and private automation logic are not published here.",
+    "私有授权包会包含真正的运行时。 / Private licensed packages include the actual runtime."
   ]
 }

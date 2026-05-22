@@ -1,5 +1,11 @@
-Proprietary Notice
+Proprietary Notice / 专有声明
 
-This public repository contains product documentation and sanitized examples only.
+English:
+This public repository contains product documentation and sanitized example configuration only.
 
-The private automation runtime, source code, compiled assets, license keys, and customer packages are proprietary and are not licensed for redistribution through this repository.
+The private automation runtime, source code, compiled assets, license files, signing private key, and customer packages are proprietary and are not licensed for copying, modification, redistribution, or resale through this repository.
+
+中文：
+本公开仓库只包含产品介绍文档和脱敏示例配置。
+
+私有自动化运行时、源代码、编译文件、许可证、签名私钥和客户授权包均为专有内容，不通过本仓库授权复制、修改、分发或转售。
