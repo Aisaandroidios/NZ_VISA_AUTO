@@ -16,6 +16,9 @@
     "check": "tsc --noEmit",
     "start:compiled": "node dist/index.js run",
     "discover:compiled": "node dist/index.js discover",
+    "license:init": "node tools/license-init.mjs",
+    "license:issue": "node tools/license-issue.mjs",
+    "package:licensed": "node tools/package-portable.mjs --licensed",
     "package:portable": "node tools/package-portable.mjs",
     "package:portable:zip": "node tools/package-portable.mjs"
   },
