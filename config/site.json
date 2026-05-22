@@ -19,10 +19,10 @@
     "timeoutMs": 15000,
     "navigationTimeoutMs": 30000,
     "screenshotDir": "artifacts",
-    "defaultActionDelayMs": 80,
-    "fieldDelayMs": 80,
+    "defaultActionDelayMs": 0,
+    "fieldDelayMs": 0,
     "clickDelayMs": 800,
-    "navigationDelayMs": 3500
+    "navigationDelayMs": 1000
   },
   "phases": [
     {
@@ -79,20 +79,22 @@
       "releaseAt": "${site.submit.releaseAt}",
       "preReleaseIntervalMs": 30000,
       "finalCountdownWindowMs": 120000,
-      "finalCountdownIntervalMs": 2000,
+      "finalCountdownIntervalMs": 1000,
       "hotCountdownWindowMs": 15000,
-      "hotCountdownIntervalMs": 500,
-      "intervalMs": 500,
-      "clickTimeoutMs": 500,
-      "postClickWaitMs": 2000,
-      "reloadTimeoutMs": 5000,
+      "hotCountdownIntervalMs": 100,
+      "intervalMs": 100,
+      "clickTimeoutMs": 1000,
+      "postClickWaitMs": 0,
+      "postActionDelayMs": 0,
+      "reloadTimeoutMs": 1500,
+      "waitUntil": "commit",
       "timeoutMs": 3600000,
       "reload": true
     },
     {
       "name": "Wait after clicking China Apply Now",
       "action": "sleep",
-      "durationMs": 3000
+      "durationMs": 0
     },
     {
       "name": "Return to working holiday homepage if multiple applications message appears",
@@ -103,7 +105,7 @@
     {
       "name": "Wait after returning from multiple applications message",
       "action": "sleep",
-      "durationMs": 5000
+      "durationMs": 1000
     },
     {
       "name": "Open existing incomplete application if listed",
@@ -120,7 +122,7 @@
     {
       "name": "Wait after re-entering China application from forms list",
       "action": "sleep",
-      "durationMs": 3000
+      "durationMs": 1000
     }
   ],
   "submit": {

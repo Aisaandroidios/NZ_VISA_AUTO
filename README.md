@@ -108,41 +108,68 @@ run-test-pre-submit.bat
 
 德国测试会使用同一套填写逻辑跑到 `Confirm Submit` 页，并自动勾选 Yes。测试时不要点击最终 `SUBMIT`，避免提交真实申请。
 
-## 打包给别的电脑
+[//]: # (## 打包给别的电脑)
 
-在本机源码目录运行：
+[//]: # ()
+[//]: # (在本机源码目录运行：)
 
-```text
-build-portable.bat
-```
+[//]: # ()
+[//]: # (```text)
 
-或：
+[//]: # (build-portable.bat)
 
-```bash
-pnpm run package:portable
-```
+[//]: # (```)
 
-生成结果在 `release/` 目录，最新 zip 路径会写入：
+[//]: # ()
+[//]: # (或：)
 
-```text
-release/LATEST-PORTABLE-ZIP.txt
-```
+[//]: # ()
+[//]: # (```bash)
 
-发布包特点：
+[//]: # (pnpm run package:portable)
 
-- 包含编译后的 `dist/`，不需要源码。
-- 包含 `run-real-china-pre-submit.*` 和 `run-test-pre-submit.*`。
-- 不会复制你本机真实的 `config/applicant.json`。
-- 发布包里的 `config/applicant.json` 会从干净模板生成，每个人拿到后自己改。
+[//]: # (```)
 
-新电脑第一次使用发布包：
+[//]: # ()
+[//]: # (生成结果在 `release/` 目录，最新 zip 路径会写入：)
 
-1. 安装 Node.js。
-2. 解压 zip。
-3. Windows 双击 `install-browser.bat`；macOS 运行 `install-browser.command`。
-4. 修改 `config/applicant.json`。
-5. 先运行德国测试。
-6. 确认无误后，正式时间运行中国真实流程。
+[//]: # ()
+[//]: # (```text)
+
+[//]: # (release/LATEST-PORTABLE-ZIP.txt)
+
+[//]: # (```)
+
+[//]: # (发布包特点：)
+
+[//]: # ()
+[//]: # (- 包含编译后的 `dist/`，不需要源码。)
+
+[//]: # (- `dist/*.js` 会在打包时混淆压缩，降低直接阅读和复制代码的便利性。)
+
+[//]: # (- 包含 `run-real-china-pre-submit.*` 和 `run-test-pre-submit.*`。)
+
+[//]: # (- 不会复制你本机真实的 `config/applicant.json`。)
+
+[//]: # (- 发布包里的 `config/applicant.json` 会从干净模板生成，每个人拿到后自己改。)
+
+[//]: # (- `config/applicant.json` 必须保持明文可编辑，不要把账号、证件信息误认为已经被加密保护。)
+
+[//]: # ()
+[//]: # (新电脑第一次使用发布包：)
+
+[//]: # ()
+[//]: # (1. 安装 Node.js。)
+
+[//]: # (2. 解压 zip。)
+
+[//]: # (3. Windows 双击 `install-browser.bat`；macOS 运行 `install-browser.command`。)
+
+[//]: # (4. 修改 `config/applicant.json`。)
+
+[//]: # (5. 先运行德国测试。)
+
+[//]: # (6. 确认无误后，正式时间运行中国真实流程。)
 
 ## 节奏设置
 

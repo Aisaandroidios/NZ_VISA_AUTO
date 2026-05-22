@@ -18,10 +18,10 @@
     "timeoutMs": 15000,
     "navigationTimeoutMs": 30000,
     "screenshotDir": "artifacts",
-    "defaultActionDelayMs": 80,
-    "fieldDelayMs": 80,
+    "defaultActionDelayMs": 0,
+    "fieldDelayMs": 0,
     "clickDelayMs": 800,
-    "navigationDelayMs": 3500
+    "navigationDelayMs": 1000
   },
   "phases": [
     {
@@ -69,23 +69,28 @@
       "name": "Wait and immediately open Germany application entry",
       "action": "waitAndClickOpen",
       "selector": "a:has-text('GERMANY')",
-      "intervalMs": 500,
-      "clickTimeoutMs": 500,
-      "reloadTimeoutMs": 5000,
+      "intervalMs": 100,
+      "clickTimeoutMs": 1000,
+      "postClickWaitMs": 0,
+      "postActionDelayMs": 0,
+      "reloadTimeoutMs": 1500,
+      "waitUntil": "commit",
       "timeoutMs": 3600000,
       "reload": true
     },
     {
       "name": "Wait after opening Germany application entry",
       "action": "sleep",
-      "durationMs": 3000
+      "durationMs": 0
     },
     {
       "name": "Wait and immediately click Germany Apply Now",
       "action": "waitAndClickOpen",
       "selector": "#ContentPlaceHolder1_applyNowButton",
-      "intervalMs": 500,
-      "clickTimeoutMs": 500,
+      "intervalMs": 100,
+      "clickTimeoutMs": 1000,
+      "postClickWaitMs": 0,
+      "postActionDelayMs": 0,
       "reloadTimeoutMs": 5000,
       "timeoutMs": 600000,
       "reload": false
@@ -93,7 +98,7 @@
     {
       "name": "Wait after clicking Germany Apply Now",
       "action": "sleep",
-      "durationMs": 3000
+      "durationMs": 0
     },
     {
       "name": "Return to working holiday homepage if multiple applications message appears",
@@ -104,7 +109,7 @@
     {
       "name": "Wait after returning from multiple applications message",
       "action": "sleep",
-      "durationMs": 5000
+      "durationMs": 1000
     },
     {
       "name": "Open existing incomplete application if listed",
@@ -121,7 +126,7 @@
     {
       "name": "Wait after re-entering Germany application from forms list",
       "action": "sleep",
-      "durationMs": 3000
+      "durationMs": 1000
     }
   ],
   "submit": {

@@ -329,7 +329,7 @@ async function waitForOpen(
       const page = await getActivePage(session);
       try {
         await page.reload({
-          waitUntil: "domcontentloaded",
+          waitUntil: action.waitUntil ?? "domcontentloaded",
           timeout: Math.min(
             action.reloadTimeoutMs ?? 5_000,
             Math.max(500, timeoutAt - Date.now()),
@@ -429,10 +429,6 @@ async function tryFastClickOpenTarget(
   }
 
   try {
-    if ((await locator.count()) === 0) {
-      return false;
-    }
-
     await locator.click({
       timeout: Math.min(action.clickTimeoutMs ?? 500, remainingMs),
       noWaitAfter: true,
