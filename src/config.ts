@@ -3,7 +3,10 @@ import { mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
 
-import { validateApplicantLicense } from "./license.js";
+import {
+  validateApplicantLicense,
+  type LicenseGuard,
+} from "./license.js";
 
 loadDotenv();
 
@@ -122,6 +125,7 @@ export type LoadedConfig = {
   site: SiteConfig;
   applicantPath: string;
   sitePath: string;
+  licenseGuard?: LicenseGuard;
 };
 
 export async function loadConfigFiles(input: {
@@ -138,7 +142,7 @@ export async function loadConfigFiles(input: {
   const applicant = applicantSchema.parse(applicantRaw);
   const site = siteSchema.parse(siteRaw);
 
-  await validateApplicantLicense({ applicant, applicantPath });
+  const licenseGuard = await validateApplicantLicense({ applicant, applicantPath });
 
   await mkdir(path.resolve(site.defaults.screenshotDir), { recursive: true });
   await mkdir(path.resolve(site.browser.userDataDir), { recursive: true });
@@ -148,6 +152,7 @@ export async function loadConfigFiles(input: {
     site,
     applicantPath,
     sitePath,
+    licenseGuard,
   };
 }
 

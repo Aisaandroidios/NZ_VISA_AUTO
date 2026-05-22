@@ -3,11 +3,15 @@ import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 
 import type { ApplicantConfig } from "./config.js";
+import {
+  builtInLicenseGuardSalt,
+  builtInLicensePublicKeySha256,
+} from "./license-builtins.js";
 
 type SecurityConfig = {
-  requireLicense?: boolean;
   licensePath?: string;
   publicKeyPath?: string;
+  publicKeySha256?: string;
 };
 
 type ApplicantLicense = {
@@ -22,10 +26,20 @@ type ApplicantLicense = {
   signature: string;
 };
 
+export type LicenseGuard = {
+  licenseId: string;
+  lockedHash: string;
+  lockedPaths: string[];
+  publicKeySha256: string;
+  token: string;
+  seal: string;
+  checks: number;
+};
+
 export async function validateApplicantLicense(input: {
   applicant: ApplicantConfig;
   applicantPath: string;
-}) {
+}): Promise<LicenseGuard | undefined> {
   const applicantDir = path.dirname(input.applicantPath);
   const securityPath = path.join(applicantDir, "security.json");
   const security = await readOptionalJson<SecurityConfig>(securityPath);
@@ -41,8 +55,11 @@ export async function validateApplicantLicense(input: {
 
   const hasLicenseFiles =
     (await fileExists(licensePath)) || (await fileExists(publicKeyPath));
-  if (!security?.requireLicense && !hasLicenseFiles) {
-    return;
+  const mustValidate = Boolean(
+    builtInLicensePublicKeySha256 || security || hasLicenseFiles,
+  );
+  if (!mustValidate) {
+    return undefined;
   }
 
   if (!(await fileExists(licensePath))) {
@@ -59,8 +76,57 @@ export async function validateApplicantLicense(input: {
 
   verifyLicenseShape(license);
   verifyExpiry(license);
+  const publicKeySha256 = verifyPublicKey(publicKey, security);
   verifySignature(license, publicKey);
   verifyLockedApplicant(input.applicant, license);
+  return createGuard(license, publicKeySha256);
+}
+
+export function assertRuntimeLicense(
+  guard: LicenseGuard | undefined,
+  reason: string,
+) {
+  if (!guard) {
+    return;
+  }
+
+  guard.checks += 1;
+  const seal = createGuardSeal(guard);
+  if (seal !== guard.seal) {
+    throw new Error(`License runtime guard failed during ${reason}.`);
+  }
+
+  if (guard.checks % 17 === 0) {
+    const token = createGuardToken({
+      licenseId: guard.licenseId,
+      lockedHash: guard.lockedHash,
+      lockedPaths: guard.lockedPaths,
+      publicKeySha256: guard.publicKeySha256,
+    });
+    if (token !== guard.token) {
+      throw new Error(`License runtime token failed during ${reason}.`);
+    }
+  }
+}
+
+export function assertApplicantRuntimeLicense(input: {
+  applicant: ApplicantConfig;
+  guard: LicenseGuard | undefined;
+  reason: string;
+}) {
+  assertRuntimeLicense(input.guard, input.reason);
+  if (!input.guard) {
+    return;
+  }
+
+  const actualLockedValues = collectLockedValues(
+    input.applicant,
+    input.guard.lockedPaths,
+  );
+  const actualHash = sha256(canonicalJson(actualLockedValues));
+  if (actualHash !== input.guard.lockedHash) {
+    throw new Error(`Applicant license lock failed during ${input.reason}.`);
+  }
 }
 
 function verifyLicenseShape(license: ApplicantLicense) {
@@ -108,15 +174,53 @@ function verifySignature(license: ApplicantLicense, publicKey: string) {
   }
 }
 
+function verifyPublicKey(publicKey: string, security: SecurityConfig | undefined) {
+  const publicKeySha256 = sha256(publicKey);
+
+  if (security?.publicKeySha256 && security.publicKeySha256 !== publicKeySha256) {
+    throw new Error("License public key hash does not match security config.");
+  }
+
+  if (
+    builtInLicensePublicKeySha256 &&
+    builtInLicensePublicKeySha256 !== publicKeySha256
+  ) {
+    throw new Error("License public key hash does not match this build.");
+  }
+
+  return publicKeySha256;
+}
+
 function verifyLockedApplicant(applicant: ApplicantConfig, license: ApplicantLicense) {
   const actualLockedValues = collectLockedValues(applicant, license.lockedPaths);
   const actualHash = sha256(canonicalJson(actualLockedValues));
 
   if (actualHash !== license.lockedHash) {
-    throw new Error(
-      "Applicant information does not match this license. Reissue a license for the changed applicant.",
-    );
+    throw new Error(decodeNotice(licenseMismatchNoticeParts));
   }
+}
+
+const licenseMismatchNoticeParts = [
+  "a9c398b6969580af88a044231902577d592a01398ab7eaa2a4c79e9d8da2535220293c2f6d50151e",
+  "c4888ae1a2d6d781bc9e73415434325d1a57772be5c3bc95b4c4c6e5b84341557e7f74494a2749bd",
+  "f8f8c998efb5c1f6ca47576d6cc4d6aee5b5d536cae4afb1e0b5dff0b4be9dfc968692cf80e1b505",
+  "25792a5b435d4b46dcfec3acfbaff59ae1940846331d731d2e1e2957b8cf95cbba9bf5eab3a06f1f",
+  "6f10401842182d3ca7bbf0be91de94c4d9ec1f73247e1e620c325f4ccab29df1dce0cab8ca2b5010",
+  "51760f64682d66e09697978293dca4e9a02e660e5f1471160e473e8cfaaae586f7c4fac2f34a3b1c",
+  "6f3722186e4f48df80dbb4b5e1ecb9fe6c0d44491a1852766f3abab0c1bfcbc588b3c6af1c3c2a64",
+  "357702525b3ae0b48afab1abdce780ce4b4c4a21776e606829189cd58b82eedba6e798d63b493652",
+  "0d047b50",
+];
+
+function decodeNotice(parts: string[]) {
+  const key = [0x4e, 0x5a, 0x31, 0x79, 0x0d, 0x63, 0x2a];
+  const bytes = Buffer.from(parts.join(""), "hex");
+
+  for (let index = 0; index < bytes.length; index += 1) {
+    bytes[index] ^= key[index % key.length] ^ ((index * 13) & 0xff);
+  }
+
+  return bytes.toString("utf8");
 }
 
 function licensePayloadForSigning(license: ApplicantLicense) {
@@ -130,6 +234,54 @@ function licensePayloadForSigning(license: ApplicantLicense) {
     lockedValues: license.lockedValues,
     lockedHash: license.lockedHash,
   };
+}
+
+function createGuard(license: ApplicantLicense, publicKeySha256: string): LicenseGuard {
+  const base = {
+    licenseId: license.licenseId,
+    lockedHash: license.lockedHash,
+    lockedPaths: license.lockedPaths,
+    publicKeySha256,
+  };
+  const token = createGuardToken(base);
+  const guard: LicenseGuard = {
+    ...base,
+    token,
+    seal: "",
+    checks: 0,
+  };
+  guard.seal = createGuardSeal(guard);
+  return guard;
+}
+
+function createGuardToken(input: {
+  licenseId: string;
+  lockedHash: string;
+  lockedPaths: string[];
+  publicKeySha256: string;
+}) {
+  return sha256(
+    canonicalJson({
+      licenseId: input.licenseId,
+      lockedHash: input.lockedHash,
+      lockedPaths: input.lockedPaths,
+      publicKeySha256: input.publicKeySha256,
+      salt: builtInLicenseGuardSalt,
+    }),
+  );
+}
+
+function createGuardSeal(guard: LicenseGuard) {
+  return sha256(
+    canonicalJson({
+      licenseId: guard.licenseId,
+      lockedHash: guard.lockedHash,
+      lockedPaths: guard.lockedPaths,
+      publicKeySha256: guard.publicKeySha256,
+      token: guard.token,
+      salt: builtInLicenseGuardSalt,
+    }),
+  );
 }
 
 function collectLockedValues(

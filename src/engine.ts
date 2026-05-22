@@ -10,6 +10,7 @@ import {
   type PhaseAction,
   type SiteConfig,
 } from "./config.js";
+import { assertApplicantRuntimeLicense } from "./license.js";
 
 export type EngineSession = {
   context: BrowserContext;
@@ -19,6 +20,12 @@ export type EngineSession = {
 };
 
 export async function createSession(config: LoadedConfig): Promise<EngineSession> {
+  assertApplicantRuntimeLicense({
+    applicant: config.applicant,
+    guard: config.licenseGuard,
+    reason: "create-session",
+  });
+
   const browserConfig = config.site.browser;
   const context = await chromium.launchPersistentContext(
     path.resolve(browserConfig.userDataDir),
