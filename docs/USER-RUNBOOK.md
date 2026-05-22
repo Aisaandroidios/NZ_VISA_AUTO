@@ -12,7 +12,7 @@
 4. 等待脚本检查 Node.js、安装依赖并下载 Playwright 浏览器。
 5. 看到安装完成提示后关闭窗口。
 
-这个步骤通常只需要做一次。如果电脑没有 Node.js，脚本会优先尝试用 Windows `winget` 自动安装；如果系统没有 `winget`，请按提示手动安装 Node.js LTS 后重新运行脚本。
+这个步骤通常只需要做一次。Windows 如果没有 Node.js，脚本会优先尝试用 `winget` 自动安装。macOS 如果没有 Node.js，会先检查 Homebrew；如果没有 Homebrew，会先安装 Homebrew，再用 Homebrew 安装 Node.js。
 
 ### 德国测试流程
 
@@ -62,7 +62,7 @@ This guide is for customers who have received a private licensed zip package.
 4. Wait while the script checks Node.js, installs dependencies, and downloads the Playwright browser.
 5. Close the window after the install-finished message appears.
 
-This step usually needs to be done only once. If the computer does not have Node.js, the script first tries to install Node.js with Windows `winget`. If `winget` is not available, install Node.js LTS manually and run the script again.
+This step usually needs to be done only once. On Windows, if Node.js is missing, the script first tries to install it with `winget`. On macOS, if Node.js is missing, the script checks Homebrew first; if Homebrew is missing, it installs Homebrew and then installs Node.js through Homebrew.
 
 ### Germany Rehearsal Flow
 
