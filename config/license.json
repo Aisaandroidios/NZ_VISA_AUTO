@@ -1,8 +1,8 @@
 {
   "version": 1,
   "algorithm": "ed25519",
-  "licenseId": "lic_cce3ef3e-29e4-410d-9d92-c582fb337852",
-  "issuedAt": "2026-05-22T05:08:07.377Z",
+  "licenseId": "lic_375a9c78-8961-4880-a22a-53454798bf12",
+  "issuedAt": "2026-05-22T05:15:35.735Z",
   "lockedPaths": [
     "profile.familyName",
     "profile.givenName",
@@ -22,5 +22,5 @@
     }
   },
   "lockedHash": "7823ab9ecf1a169c9d1e01ff5e25730d41248a17127053914ee9fa3c7731503b",
-  "signature": "_C5QAYMmgrWZiVQZcMjjkn_PD4zo7LGVUQAVrnrbFNe1w4vfuqSi1EBuVPEH6sOOSOtBRsDk5OESAua6B-6HCg"
+  "signature": "nE4qf-10yqBA6rJ-9PDAS_WFFhymXSJ35wnXOUaPqv9gKEskH9iFNbPXsghGPKYxPt53J-hgsf_Z0Uk4efiuAw"
 }
