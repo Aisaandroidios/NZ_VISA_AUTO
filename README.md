@@ -20,7 +20,7 @@ NZ Visa Auto Push 是一款私有授权的新西兰 Working Holiday 申请辅助
 
 1. 从开发者处获得私有授权 zip 包。
 2. 解压 zip 到本机文件夹。
-3. 第一次使用时运行 `install-browser.bat`。
+3. 第一次使用时运行 `install-browser.bat`，它会检查 Node.js、安装依赖并下载 Playwright 浏览器。
 4. 正式申请前先运行 `run-test-pre-submit.bat` 做德国测试流程。
 5. 中国正式申请时运行 `run-real-china-pre-submit.bat`。
 6. 如果网页出现 CAPTCHA，用户在浏览器里手动完成。
@@ -60,7 +60,7 @@ This public repository is for product introduction, user guidance, and sanitized
 
 1. Receive a private licensed zip package from the developer.
 2. Extract the zip on the local computer.
-3. Run `install-browser.bat` once before first use.
+3. Run `install-browser.bat` once before first use. It checks Node.js, installs dependencies, and downloads the Playwright browser.
 4. Run `run-test-pre-submit.bat` for the Germany rehearsal flow.
 5. Run `run-real-china-pre-submit.bat` for the real China flow.
 6. Complete CAPTCHA manually if the website asks for it.

@@ -9,9 +9,10 @@
 1. 解压开发者发来的 zip 包。
 2. 打开解压后的文件夹。
 3. 双击 `install-browser.bat`。
-4. 等待窗口提示浏览器运行环境安装完成。
+4. 等待脚本检查 Node.js、安装依赖并下载 Playwright 浏览器。
+5. 看到安装完成提示后关闭窗口。
 
-这个步骤通常只需要做一次。如果换电脑或删除了运行环境，可以重新运行。
+这个步骤通常只需要做一次。如果电脑没有 Node.js，脚本会优先尝试用 Windows `winget` 自动安装；如果系统没有 `winget`，请按提示手动安装 Node.js LTS 后重新运行脚本。
 
 ### 德国测试流程
 
@@ -44,6 +45,7 @@ run-real-china-pre-submit.bat
 ### 常见问题
 
 - 浏览器打不开：重新运行 `install-browser.bat`。
+- 提示找不到 Node.js：安装 Node.js LTS 后重新运行 `install-browser.bat`。
 - 登录失败：检查 `config/applicant.json` 里的 INZ 用户名和密码。
 - 许可证不匹配：检查姓名和出生日期是否被修改。
 - 网页卡住：先看浏览器是否正在等待 CAPTCHA 或网站响应。
@@ -57,9 +59,10 @@ This guide is for customers who have received a private licensed zip package.
 1. Extract the zip package from the developer.
 2. Open the extracted folder.
 3. Double-click `install-browser.bat`.
-4. Wait until the runtime installation window finishes.
+4. Wait while the script checks Node.js, installs dependencies, and downloads the Playwright browser.
+5. Close the window after the install-finished message appears.
 
-This step usually needs to be done only once. Run it again if the computer changes or the runtime is removed.
+This step usually needs to be done only once. If the computer does not have Node.js, the script first tries to install Node.js with Windows `winget`. If `winget` is not available, install Node.js LTS manually and run the script again.
 
 ### Germany Rehearsal Flow
 
@@ -92,6 +95,7 @@ The tool stops before the final real submission and payment. The applicant must 
 ### Common Issues
 
 - Browser does not open: run `install-browser.bat` again.
+- Node.js is not found: install Node.js LTS and run `install-browser.bat` again.
 - Login fails: check the INZ username and password in `config/applicant.json`.
 - License mismatch: check whether name or date of birth was changed.
 - Page appears stuck: check whether the browser is waiting for CAPTCHA or site response.
