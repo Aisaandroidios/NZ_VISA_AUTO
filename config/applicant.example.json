@@ -1,21 +1,87 @@
 {
   "profile": {
-    "givenName": "SAN",
-    "familyName": "ZHANG",
-    "dateOfBirth": "1998-01-01",
-    "passportNumber": "E12345678",
-    "passportExpiry": "2033-01-01",
+    "title": "1",
+    "givenName": "MING",
+    "givenName2": "",
+    "givenName3": "",
+    "familyName": "LI",
+    "otherNames": "",
+    "gender": "M",
+    "dateOfBirth": "15/08/1998",
+    "countryOfBirth": "46",
+    "passportNumber": "",
+    "passportExpiry": "",
     "nationality": "CN"
   },
+  "address": {
+    "streetNumber": "88",
+    "streetName": "Nanjing Road",
+    "suburb": "Huangpu",
+    "city": "Shanghai",
+    "provinceState": "Shanghai",
+    "postalCode": "200001",
+    "country": "46"
+  },
   "credentials": {
-    "email": "your-account@example.com",
-    "password": "replace-me"
+    "email": "YOUR_INZ_USERNAME",
+    "password": "YOUR_INZ_PASSWORD",
+    "contactEmail": "your-email@example.com",
+    "communicationMethod": "1"
   },
   "files": {
-    "passportBio": "F:/docs/passport-bio.pdf",
-    "photo": "F:/docs/photo.jpg"
+    "passportBio": "",
+    "photo": ""
+  },
+  "identification": {
+    "passportNumber": "E12345678",
+    "passportExpiry": "15/09/2033",
+    "otherIdType": "3",
+    "otherIdIssuedAt": "01/06/2021",
+    "otherIdExpiresAt": "01/06/2031"
+  },
+  "occupation": {
+    "industrySearch": "software",
+    "occupationSearch": "developer"
+  },
+  "health": {
+    "renalDialysis": "No",
+    "tuberculosis": "No",
+    "cancer": "No",
+    "heartDisease": "No",
+    "disability": "No",
+    "hospitalisation": "No",
+    "residentialCare": "No",
+    "healthDetails": "",
+    "tbRisk": "No"
+  },
+  "character": {
+    "imprisonment5Years": "No",
+    "imprisonment12Months": "No",
+    "deported": "No",
+    "deportedDate": "",
+    "deportedCountry": "",
+    "charged": "No",
+    "convicted": "No",
+    "underInvestigation": "No",
+    "excluded": "No",
+    "removed": "No",
+    "excludeRemovedDetails": ""
+  },
+  "whsSpecific": {
+    "previousWhsPermitVisa": "No",
+    "sufficientFundsHoliday": "Yes",
+    "intendedTravelDate": "15/10/2026",
+    "beenToNz": "No",
+    "whenInNZ": "",
+    "sufficientFundsOnwardTicket": "Yes",
+    "readRequirements": "Yes"
   },
   "meta": {
-    "phone": "+86-13800000000"
+    "phoneDay": "",
+    "phoneNight": "",
+    "phoneMobile": "86 13800138000",
+    "fax": "",
+    "representedByAgent": "No",
+    "hasCreditCard": "Yes"
   }
 }

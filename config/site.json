@@ -18,7 +18,11 @@
   "defaults": {
     "timeoutMs": 15000,
     "navigationTimeoutMs": 30000,
-    "screenshotDir": "artifacts"
+    "screenshotDir": "artifacts",
+    "defaultActionDelayMs": 80,
+    "fieldDelayMs": 80,
+    "clickDelayMs": 800,
+    "navigationDelayMs": 3500
   },
   "phases": [
     {
@@ -69,21 +73,26 @@
       "waitUntil": "domcontentloaded"
     },
     {
-      "name": "Wait for Apply Now to open",
-      "action": "waitForOpen",
+      "name": "Wait and immediately click Apply Now",
+      "action": "waitAndClickOpen",
       "selector": "#ContentPlaceHolder1_applyNowButton",
       "releaseAt": "${site.submit.releaseAt}",
       "preReleaseIntervalMs": 30000,
       "finalCountdownWindowMs": 120000,
-      "finalCountdownIntervalMs": 3000,
-      "intervalMs": 750,
+      "finalCountdownIntervalMs": 2000,
+      "hotCountdownWindowMs": 15000,
+      "hotCountdownIntervalMs": 500,
+      "intervalMs": 500,
+      "clickTimeoutMs": 500,
+      "postClickWaitMs": 2000,
+      "reloadTimeoutMs": 5000,
       "timeoutMs": 3600000,
       "reload": true
     },
     {
-      "name": "Enter application page",
-      "action": "click",
-      "selector": "#ContentPlaceHolder1_applyNowButton"
+      "name": "Wait after clicking China Apply Now",
+      "action": "sleep",
+      "durationMs": 3000
     },
     {
       "name": "Return to working holiday homepage if multiple applications message appears",
@@ -105,7 +114,7 @@
     {
       "name": "Re-enter China application from forms list if present",
       "action": "clickIfPresent",
-      "selector": "a[href*='CountryId=46']",
+      "selector": "a[href*='CountryId=46'], a:has-text('CHINA')",
       "timeoutMs": 10000
     },
     {
@@ -589,12 +598,18 @@
         "name": "Click non-final submit to open confirm submit page",
         "action": "clickIfPageTextContains",
         "text": "Working Holiday Specific",
-        "selector": "text=SUBMIT",
+        "selector": "input[type='submit'][value='SUBMIT'], input[type='button'][value='SUBMIT'], input[type='image'][alt='SUBMIT'], input[id*='submit' i], button:has-text('SUBMIT')",
         "timeoutMs": 10000
       },
       {
+        "name": "Wait for confirm submit page",
+        "action": "waitFor",
+        "selector": "text=Confirm Submit",
+        "timeoutMs": 600000
+      },
+      {
         "name": "Auto-agree confirm submit declarations if page is open",
-        "action": "selectVisibleYesRadios",
+        "action": "checkConfirmYesDeclarations",
         "text": "Confirm Submit"
       },
       {

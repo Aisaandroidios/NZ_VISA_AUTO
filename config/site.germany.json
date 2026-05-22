@@ -17,7 +17,11 @@
   "defaults": {
     "timeoutMs": 15000,
     "navigationTimeoutMs": 30000,
-    "screenshotDir": "artifacts"
+    "screenshotDir": "artifacts",
+    "defaultActionDelayMs": 80,
+    "fieldDelayMs": 80,
+    "clickDelayMs": 800,
+    "navigationDelayMs": 3500
   },
   "phases": [
     {
@@ -62,21 +66,32 @@
       "durationMs": 5000
     },
     {
-      "name": "Wait for Germany application entry to be open",
-      "action": "waitForOpen",
+      "name": "Wait and immediately open Germany application entry",
+      "action": "waitAndClickOpen",
       "selector": "a:has-text('GERMANY')",
-      "intervalMs": 1000,
+      "intervalMs": 500,
+      "clickTimeoutMs": 500,
+      "reloadTimeoutMs": 5000,
       "timeoutMs": 3600000,
       "reload": true
     },
     {
-      "name": "Open Germany application entry",
-      "action": "click",
-      "selector": "a:has-text('GERMANY')",
-      "timeoutMs": 10000
+      "name": "Wait after opening Germany application entry",
+      "action": "sleep",
+      "durationMs": 3000
     },
     {
-      "name": "Wait after opening Germany application entry",
+      "name": "Wait and immediately click Germany Apply Now",
+      "action": "waitAndClickOpen",
+      "selector": "#ContentPlaceHolder1_applyNowButton",
+      "intervalMs": 500,
+      "clickTimeoutMs": 500,
+      "reloadTimeoutMs": 5000,
+      "timeoutMs": 600000,
+      "reload": false
+    },
+    {
+      "name": "Wait after clicking Germany Apply Now",
       "action": "sleep",
       "durationMs": 3000
     },
@@ -584,12 +599,18 @@
         "name": "Click non-final submit to open confirm submit page",
         "action": "clickIfPageTextContains",
         "text": "Working Holiday Specific",
-        "selector": "text=SUBMIT",
+        "selector": "input[type='submit'][value='SUBMIT'], input[type='button'][value='SUBMIT'], input[type='image'][alt='SUBMIT'], input[id*='submit' i], button:has-text('SUBMIT')",
         "timeoutMs": 10000
       },
       {
+        "name": "Wait for confirm submit page",
+        "action": "waitFor",
+        "selector": "text=Confirm Submit",
+        "timeoutMs": 600000
+      },
+      {
         "name": "Auto-agree confirm submit declarations if page is open",
-        "action": "selectVisibleYesRadios",
+        "action": "checkConfirmYesDeclarations",
         "text": "Confirm Submit"
       },
       {

@@ -33,8 +33,16 @@ export async function createSession(config: LoadedConfig): Promise<EngineSession
   context.setDefaultTimeout(config.site.defaults.timeoutMs);
   context.setDefaultNavigationTimeout(config.site.defaults.navigationTimeoutMs);
 
-  const existingPage = context.pages()[0];
-  const page = existingPage ?? (await context.newPage());
+  const existingPages = context.pages();
+  const page = await context.newPage();
+
+  for (const stalePage of existingPages) {
+    if (!stalePage.isClosed()) {
+      await stalePage.close().catch(() => {
+        // Stale tabs from a previous test run should not block a fresh run.
+      });
+    }
+  }
 
   return {
     context,
@@ -65,7 +73,51 @@ export async function runPhase(
     const action = resolveTemplate(rawAction, session.templateContext);
     process.stdout.write(`\n[${label}] ${action.name}\n`);
     await executeAction(session, action);
+    await paceAfterAction(session, action);
   }
+}
+
+async function paceAfterAction(session: EngineSession, action: PhaseAction) {
+  if (action.postActionDelayMs !== undefined) {
+    await sleep(action.postActionDelayMs);
+    return;
+  }
+
+  const delayMs = getDefaultActionDelayMs(session, action);
+  if (delayMs > 0) {
+    await sleep(delayMs);
+  }
+}
+
+function getDefaultActionDelayMs(session: EngineSession, action: PhaseAction) {
+  const defaults = session.site.defaults;
+
+  if (["sleep", "pause", "screenshot", "waitFor", "waitForAny", "waitForOpen", "waitForUrlChange"].includes(action.action)) {
+    return 0;
+  }
+
+  if (["fill", "fillIfPresent", "fillIfValue", "select", "selectIfValue", "check", "selectVisibleYesRadios", "checkConfirmYesDeclarations"].includes(action.action)) {
+    return defaults.fieldDelayMs;
+  }
+
+  if (action.action === "goto" || isNavigationLikeAction(action)) {
+    return defaults.navigationDelayMs;
+  }
+
+  if (["click", "clickNoWait", "clickIfPresent", "clickIfPageTextContains", "waitAndClickOpen", "press", "upload"].includes(action.action)) {
+    return defaults.clickDelayMs;
+  }
+
+  return defaults.defaultActionDelayMs;
+}
+
+function isNavigationLikeAction(action: PhaseAction) {
+  const haystack = `${action.name} ${action.selector ?? ""}`.toLowerCase();
+  return (
+    haystack.includes(" next") ||
+    haystack.includes("go to ") ||
+    haystack.includes("nextimagebutton")
+  );
 }
 
 async function executeAction(session: EngineSession, action: PhaseAction) {
@@ -91,6 +143,11 @@ async function executeAction(session: EngineSession, action: PhaseAction) {
     case "waitForOpen":
       ensure(action.selector, action.name, "selector");
       await waitForOpen(session, action);
+      return;
+
+    case "waitAndClickOpen":
+      ensure(action.selector, action.name, "selector");
+      await waitForOpen(session, action, { clickWhenVisible: true });
       return;
 
     case "waitForUrlChange":
@@ -126,8 +183,8 @@ async function executeAction(session: EngineSession, action: PhaseAction) {
       ensure(action.selector, action.name, "selector");
       ensure(action.text, action.name, "text");
       if ((await page.locator(`text=${action.text}`).count()) > 0) {
-        if ((await page.locator(action.selector).count()) > 0) {
-          await page.locator(action.selector).first().click({ timeout: action.timeoutMs });
+        const clicked = await clickLastVisible(page.locator(action.selector), action.timeoutMs);
+        if (clicked) {
           await waitForCaptchaToClear(session, action.name);
         } else {
           process.stdout.write(`Page text matched but selector not present, skipping: ${action.selector}\n`);
@@ -197,6 +254,10 @@ async function executeAction(session: EngineSession, action: PhaseAction) {
       await selectVisibleYesRadios(page, action.text);
       return;
 
+    case "checkConfirmYesDeclarations":
+      await checkConfirmYesDeclarations(page, action.text ?? "Confirm Submit");
+      return;
+
     case "check":
       ensure(action.selector, action.name, "selector");
       if (action.checked === false) {
@@ -237,7 +298,11 @@ async function executeAction(session: EngineSession, action: PhaseAction) {
   }
 }
 
-async function waitForOpen(session: EngineSession, action: PhaseAction) {
+async function waitForOpen(
+  session: EngineSession,
+  action: PhaseAction,
+  options: { clickWhenVisible?: boolean } = {},
+) {
   const releaseAt = action.releaseAt
     ? parseReleaseAt(action.releaseAt, action.name)
     : Date.now();
@@ -245,37 +310,176 @@ async function waitForOpen(session: EngineSession, action: PhaseAction) {
   const preReleaseInterval = action.preReleaseIntervalMs ?? 30_000;
   const finalCountdownWindow = action.finalCountdownWindowMs ?? 120_000;
   const finalCountdownInterval = action.finalCountdownIntervalMs ?? Math.min(preReleaseInterval, 5_000);
+  const hotCountdownWindow = Math.min(
+    action.hotCountdownWindowMs ?? 15_000,
+    finalCountdownWindow,
+  );
+  const hotCountdownInterval = action.hotCountdownIntervalMs ?? Math.min(finalCountdownInterval, 500);
   const releaseInterval = action.intervalMs ?? 1_000;
+  let lastPollMode: string | undefined;
 
   while (Date.now() < timeoutAt) {
     await waitForCaptchaToClear(session, action.name);
 
-    try {
-      const page = await getActivePage(session);
-      const locator = page.locator(action.selector!);
-      if (await locator.first().isVisible()) {
-        return;
-      }
-    } catch {
-      // Ignore transient DOM/navigation errors while polling.
+    if (await tryResolveOpenTarget(session, action, options, timeoutAt)) {
+      return;
     }
 
     if (action.reload) {
       const page = await getActivePage(session);
-      await page.reload({ waitUntil: "domcontentloaded" });
+      try {
+        await page.reload({
+          waitUntil: "domcontentloaded",
+          timeout: Math.min(
+            action.reloadTimeoutMs ?? 5_000,
+            Math.max(500, timeoutAt - Date.now()),
+          ),
+        });
+      } catch {
+        // A slow busy-server refresh should not block later polling attempts.
+      }
+      if (await tryResolveOpenTarget(session, action, options, timeoutAt)) {
+        return;
+      }
     }
 
     const msToRelease = releaseAt - Date.now();
-    let sleepFor = releaseInterval;
-    if (msToRelease > finalCountdownWindow) {
-      sleepFor = preReleaseInterval;
-    } else if (msToRelease > 0) {
-      sleepFor = finalCountdownInterval;
+    const poll = getOpenPollingCadence({
+      msToRelease,
+      preReleaseInterval,
+      finalCountdownWindow,
+      finalCountdownInterval,
+      hotCountdownWindow,
+      hotCountdownInterval,
+      releaseInterval,
+    });
+    if (poll.mode !== lastPollMode) {
+      lastPollMode = poll.mode;
+      process.stdout.write(
+        `Open polling mode: ${poll.mode}; next check in ${poll.intervalMs}ms; release in ${formatRelativeMs(msToRelease)}.\n`,
+      );
     }
-    await sleep(sleepFor);
+    await sleep(poll.intervalMs);
   }
 
   throw new Error(`Timed out waiting for open state in action "${action.name}".`);
+}
+
+async function tryResolveOpenTarget(
+  session: EngineSession,
+  action: PhaseAction,
+  options: { clickWhenVisible?: boolean },
+  timeoutAt: number,
+) {
+  try {
+    const page = await getActivePage(session);
+    const locator = page.locator(action.selector!).first();
+    if (options.clickWhenVisible) {
+      const clicked = await tryFastClickOpenTarget(locator, action, timeoutAt);
+      if (clicked) {
+        process.stdout.write(`Open target clicked immediately: ${action.selector}\n`);
+        await waitForCaptchaToClear(session, action.name);
+        if (action.postClickWaitMs) {
+          await sleep(action.postClickWaitMs);
+        }
+        return true;
+      }
+      return false;
+    }
+
+    if (await locator.isVisible()) {
+      process.stdout.write(`Open target detected: ${action.selector}\n`);
+      return true;
+    }
+  } catch {
+    // Ignore transient DOM/navigation errors while polling.
+  }
+
+  return false;
+}
+
+async function clickLastVisible(
+  locator: ReturnType<Page["locator"]>,
+  timeoutMs: number | undefined,
+) {
+  const count = await locator.count();
+  for (let index = count - 1; index >= 0; index -= 1) {
+    const candidate = locator.nth(index);
+    try {
+      if (await candidate.isVisible()) {
+        await candidate.click({ timeout: timeoutMs });
+        return true;
+      }
+    } catch {
+      // Keep trying earlier visible candidates.
+    }
+  }
+
+  return false;
+}
+
+async function tryFastClickOpenTarget(
+  locator: ReturnType<Page["locator"]>,
+  action: PhaseAction,
+  timeoutAt: number,
+) {
+  const remainingMs = timeoutAt - Date.now();
+  if (remainingMs <= 0) {
+    return false;
+  }
+
+  try {
+    if ((await locator.count()) === 0) {
+      return false;
+    }
+
+    await locator.click({
+      timeout: Math.min(action.clickTimeoutMs ?? 500, remainingMs),
+      noWaitAfter: true,
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function getOpenPollingCadence(input: {
+  msToRelease: number;
+  preReleaseInterval: number;
+  finalCountdownWindow: number;
+  finalCountdownInterval: number;
+  hotCountdownWindow: number;
+  hotCountdownInterval: number;
+  releaseInterval: number;
+}) {
+  if (input.msToRelease > input.finalCountdownWindow) {
+    return { mode: "pre-release", intervalMs: input.preReleaseInterval };
+  }
+
+  if (input.msToRelease > input.hotCountdownWindow) {
+    return { mode: "final-countdown", intervalMs: input.finalCountdownInterval };
+  }
+
+  if (input.msToRelease > 0) {
+    return { mode: "hot-countdown", intervalMs: input.hotCountdownInterval };
+  }
+
+  return { mode: "open-window", intervalMs: input.releaseInterval };
+}
+
+function formatRelativeMs(ms: number) {
+  if (ms <= 0) {
+    return "now";
+  }
+
+  const totalSeconds = Math.ceil(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  if (minutes > 0) {
+    return `${minutes}m ${seconds}s`;
+  }
+
+  return `${seconds}s`;
 }
 
 async function waitForUrlChange(session: EngineSession, action: PhaseAction) {
@@ -465,6 +669,10 @@ async function waitForCaptchaToClear(session: EngineSession, actionName: string)
 
 async function isCaptchaPage(page: Page) {
   const url = page.url().toLowerCase();
+  if (url.includes("/workingholiday/application/submit.aspx")) {
+    return false;
+  }
+
   if (url.includes("rs-captcha") || url.includes("recaptcha") || url.includes("captcha")) {
     return true;
   }
@@ -472,6 +680,10 @@ async function isCaptchaPage(page: Page) {
   try {
     return await page.evaluate(() => {
       const text = document.body?.innerText?.toLowerCase() ?? "";
+      if (text.includes("confirm submit")) {
+        return false;
+      }
+
       if (
         text.includes("please complete the captcha") ||
         text.includes("complete the captcha") ||
@@ -492,11 +704,29 @@ async function isCaptchaPage(page: Page) {
 }
 
 async function getActivePage(session: EngineSession) {
+  const openPages = session.context.pages().filter((candidate) => !candidate.isClosed());
+
+  const workingHolidayPage = openPages
+    .slice()
+    .reverse()
+    .find((candidate) => {
+      const url = candidate.url().toLowerCase();
+      return (
+        url.includes("/workingholiday/") &&
+        !url.includes("captcha") &&
+        !url.includes("rs-captcha")
+      );
+    });
+
+  if (workingHolidayPage) {
+    session.page = workingHolidayPage;
+    return session.page;
+  }
+
   if (!session.page.isClosed()) {
     return session.page;
   }
 
-  const openPages = session.context.pages().filter((candidate) => !candidate.isClosed());
   if (openPages.length > 0) {
     session.page = openPages[openPages.length - 1];
     return session.page;
@@ -591,4 +821,91 @@ async function selectVisibleYesRadios(page: Page, requiredText?: string) {
   process.stdout.write(
     `Selected Yes/default option in ${result.radioTouched} visible radio group(s) and checked ${result.checkboxTouched} visible checkbox(es).\n`,
   );
+}
+
+async function checkConfirmYesDeclarations(page: Page, requiredText: string) {
+  if ((await page.locator(`text=${requiredText}`).count()) === 0) {
+    process.stdout.write(`Confirm Submit text not found, skipping declaration auto-check.\n`);
+    return;
+  }
+
+  const checkboxes = page.locator("input[type='checkbox']");
+  const total = await checkboxes.count();
+
+  for (let index = 0; index < total; index += 1) {
+    const checkbox = checkboxes.nth(index);
+    await clickConfirmCheckbox(page, index, checkbox);
+  }
+
+  const result = await page.evaluate(`
+    (() => {
+      const checkboxes = Array.from(document.querySelectorAll("input[type='checkbox']"));
+      let checked = 0;
+      for (const checkbox of checkboxes) {
+        if (!checkbox.checked) {
+          checkbox.checked = true;
+          checkbox.dispatchEvent(new Event("input", { bubbles: true }));
+          checkbox.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+        if (checkbox.checked) {
+          checked += 1;
+        }
+      }
+      return { checked, total: checkboxes.length };
+    })()
+  `) as { checked: number; total: number };
+
+  process.stdout.write(`Checked ${result.checked}/${result.total} Confirm Submit Yes declaration checkbox(es).\n`);
+}
+
+async function clickConfirmCheckbox(
+  page: Page,
+  index: number,
+  checkbox: ReturnType<Page["locator"]>,
+) {
+  try {
+    if (await checkbox.isChecked()) {
+      return;
+    }
+  } catch {
+    // Fall through to coordinate clicking.
+  }
+
+  const point = await page.evaluate(`
+    (() => {
+      const checkbox = document.querySelectorAll("input[type='checkbox']")[${index}];
+      if (!checkbox) {
+        return null;
+      }
+
+      checkbox.scrollIntoView({ block: "center", inline: "center" });
+      const checkboxRect = checkbox.getBoundingClientRect();
+      if (checkboxRect.width > 0 && checkboxRect.height > 0) {
+        return {
+          x: checkboxRect.left + checkboxRect.width / 2,
+          y: checkboxRect.top + checkboxRect.height / 2
+        };
+      }
+
+      const label = checkbox.id
+        ? document.querySelector("label[for='" + CSS.escape(checkbox.id) + "']")
+        : checkbox.closest("label");
+      if (label) {
+        const labelRect = label.getBoundingClientRect();
+        if (labelRect.width > 0 && labelRect.height > 0) {
+          return {
+            x: labelRect.left + Math.min(labelRect.width / 2, 20),
+            y: labelRect.top + labelRect.height / 2
+          };
+        }
+      }
+
+      return null;
+    })()
+  `) as { x: number; y: number } | null;
+
+  if (point) {
+    await page.mouse.click(point.x, point.y);
+    await sleep(80);
+  }
 }
