@@ -1,0 +1,5 @@
+Proprietary Notice
+
+This public repository contains product documentation and sanitized examples only.
+
+The private automation runtime, source code, compiled assets, license keys, and customer packages are proprietary and are not licensed for redistribution through this repository.

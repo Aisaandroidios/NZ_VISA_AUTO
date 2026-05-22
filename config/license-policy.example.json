@@ -1,0 +1,21 @@
+{
+  "licenseModel": "offline signed customer package",
+  "lockedFields": [
+    "profile.familyName",
+    "profile.givenName",
+    "profile.givenName2",
+    "profile.givenName3",
+    "profile.otherNames",
+    "profile.dateOfBirth"
+  ],
+  "customerEditableExamples": [
+    "address",
+    "credentials.password",
+    "identification",
+    "health",
+    "character",
+    "whsSpecific",
+    "meta"
+  ],
+  "publicRepositoryNotice": "Issued license files and private signing keys are not published."
+}

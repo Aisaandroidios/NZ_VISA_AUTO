@@ -1,0 +1,25 @@
+# Never publish private automation code or compiled runtime.
+src/
+dist/
+tools/
+node_modules/
+
+# Never publish secrets, sessions, artifacts, or private releases.
+.env
+.secrets/
+.session/
+artifacts/
+release/
+*.zip
+
+# Never publish real customer data or issued license files.
+config/applicant.json
+config/license.json
+config/license-public.pem
+config/security.json
+
+# Local editor/system files.
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

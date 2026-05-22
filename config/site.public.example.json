@@ -1,0 +1,23 @@
+{
+  "name": "Public Example Flow",
+  "timezone": "Pacific/Auckland",
+  "browser": {
+    "headless": false,
+    "channel": "chrome",
+    "viewport": {
+      "width": 1440,
+      "height": 960
+    }
+  },
+  "defaults": {
+    "timeoutMs": 15000,
+    "navigationTimeoutMs": 30000,
+    "fieldDelayMs": 0,
+    "navigationDelayMs": 1000
+  },
+  "notes": [
+    "This is a public documentation example only.",
+    "Production selectors and private automation logic are not included in this repository.",
+    "Private licensed packages include the actual runtime."
+  ]
+}

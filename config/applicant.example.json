@@ -1,0 +1,77 @@
+{
+  "profile": {
+    "title": "1",
+    "givenName": "MING",
+    "givenName2": "",
+    "givenName3": "",
+    "familyName": "LI",
+    "otherNames": "",
+    "gender": "M",
+    "dateOfBirth": "15/08/1998",
+    "countryOfBirth": "46",
+    "nationality": "CN"
+  },
+  "address": {
+    "streetNumber": "88",
+    "streetName": "Example Road",
+    "suburb": "Example District",
+    "city": "Shanghai",
+    "provinceState": "Shanghai",
+    "postalCode": "200001",
+    "country": "46"
+  },
+  "credentials": {
+    "email": "YOUR_INZ_USERNAME",
+    "password": "YOUR_INZ_PASSWORD",
+    "contactEmail": "your-email@example.com",
+    "communicationMethod": "1"
+  },
+  "identification": {
+    "passportNumber": "E12345678",
+    "passportExpiry": "15/09/2033",
+    "otherIdType": "3",
+    "otherIdIssuedAt": "01/06/2021",
+    "otherIdExpiresAt": "01/06/2031"
+  },
+  "health": {
+    "renalDialysis": "No",
+    "tuberculosis": "No",
+    "cancer": "No",
+    "heartDisease": "No",
+    "disability": "No",
+    "hospitalisation": "No",
+    "residentialCare": "No",
+    "healthDetails": "",
+    "tbRisk": "No"
+  },
+  "character": {
+    "imprisonment5Years": "No",
+    "imprisonment12Months": "No",
+    "deported": "No",
+    "deportedDate": "",
+    "deportedCountry": "",
+    "charged": "No",
+    "convicted": "No",
+    "underInvestigation": "No",
+    "excluded": "No",
+    "removed": "No",
+    "excludeRemovedDetails": ""
+  },
+  "whsSpecific": {
+    "previousWhsPermitVisa": "No",
+    "sufficientFundsHoliday": "Yes",
+    "intendedTravelDate": "15/10/2026",
+    "beenToNz": "No",
+    "whenInNZ": "",
+    "sufficientFundsOnwardTicket": "Yes",
+    "readRequirements": "Yes"
+  },
+  "meta": {
+    "phoneDay": "",
+    "phoneNight": "",
+    "phoneMobile": "86 13800138000",
+    "fax": "",
+    "representedByAgent": "No",
+    "hasCreditCard": "Yes"
+  }
+}
