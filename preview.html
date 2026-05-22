@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>NZ VISA AUTO</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+  background:#081120;
+  color:#fff;
+  overflow-x:hidden;
+}
+
+header{
+  width:100%;
+  padding:20px 40px;
+  position:fixed;
+  top:0;
+  left:0;
+  z-index:1000;
+  background:rgba(0,0,0,0.4);
+  backdrop-filter:blur(12px);
+}
+
+.nav{
+  max-width:1300px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.logo{
+  font-size:28px;
+  font-weight:bold;
+  color:#60a5fa;
+}
+
+.nav-buttons{
+  display:flex;
+  gap:15px;
+}
+
+.lang-btn,
+.github-btn{
+  border:none;
+  cursor:pointer;
+  padding:12px 18px;
+  border-radius:12px;
+  font-weight:bold;
+  transition:.3s;
+}
+
+.lang-btn{
+  background:#1e293b;
+  color:white;
+}
+
+.lang-btn:hover{
+  background:#334155;
+}
+
+.github-btn{
+  background:#2563eb;
+  color:white;
+  text-decoration:none;
+}
+
+.github-btn:hover{
+  background:#1d4ed8;
+}
+
+.hero{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:120px 40px 80px;
+  background:
+  radial-gradient(circle at top left,#2563eb55,transparent 35%),
+  radial-gradient(circle at bottom right,#7c3aed55,transparent 35%),
+  #081120;
+}
+
+.container{
+  max-width:1300px;
+  width:100%;
+}
+
+.main{
+  display:grid;
+  grid-template-columns:1.1fr 1fr;
+  gap:60px;
+  align-items:center;
+}
+
+.title{
+  font-size:68px;
+  line-height:1.1;
+  margin-bottom:24px;
+}
+
+.blue{
+  color:#60a5fa;
+}
+
+.desc{
+  color:#cbd5e1;
+  font-size:18px;
+  line-height:1.9;
+  margin-bottom:35px;
+}
+
+.buttons{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+}
+
+.btn{
+  text-decoration:none;
+  padding:16px 28px;
+  border-radius:14px;
+  font-weight:bold;
+  transition:.3s;
+}
+
+.btn-primary{
+  background:#2563eb;
+  color:white;
+}
+
+.btn-primary:hover{
+  background:#1d4ed8;
+  transform:translateY(-3px);
+}
+
+.btn-secondary{
+  border:1px solid #334155;
+  color:white;
+  background:#111827;
+}
+
+.btn-secondary:hover{
+  background:#1e293b;
+}
+
+.card{
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:24px;
+  padding:32px;
+  backdrop-filter:blur(14px);
+}
+
+.feature{
+  display:flex;
+  gap:18px;
+  margin-bottom:26px;
+}
+
+.feature:last-child{
+  margin-bottom:0;
+}
+
+.icon{
+  width:54px;
+  height:54px;
+  border-radius:14px;
+  background:#2563eb;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+  flex-shrink:0;
+}
+
+.feature h3{
+  margin-bottom:8px;
+  font-size:20px;
+}
+
+.feature p{
+  color:#cbd5e1;
+  line-height:1.7;
+  font-size:15px;
+}
+
+.section{
+  padding:90px 40px;
+}
+
+.section-title{
+  text-align:center;
+  font-size:42px;
+  margin-bottom:60px;
+}
+
+.rules-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:24px;
+  max-width:1200px;
+  margin:auto;
+}
+
+.rule-card{
+  background:#111827;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:22px;
+  padding:28px;
+  transition:.3s;
+}
+
+.rule-card:hover{
+  transform:translateY(-6px);
+  border-color:#2563eb;
+}
+
+.rule-card h3{
+  margin-bottom:15px;
+  color:#60a5fa;
+}
+
+.rule-card ul{
+  padding-left:18px;
+  color:#cbd5e1;
+  line-height:1.9;
+}
+
+.notice{
+  max-width:1100px;
+  margin:60px auto 0;
+  background:#172554;
+  border:1px solid #2563eb;
+  border-radius:20px;
+  padding:28px;
+  color:#dbeafe;
+  line-height:1.9;
+}
+
+.footer{
+  text-align:center;
+  padding:40px 20px;
+  color:#94a3b8;
+  border-top:1px solid rgba(255,255,255,0.08);
+}
+
+@media(max-width:950px){
+
+  .main{
+    grid-template-columns:1fr;
+  }
+
+  .title{
+    font-size:48px;
+  }
+
+  header{
+    padding:18px;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="nav">
+    <div class="logo">NZ VISA AUTO</div>
+
+    <div class="nav-buttons">
+      <button class="lang-btn" onclick="toggleLanguage()">
+        中文 / English
+      </button>
+
+      <a class="github-btn"
+         href="https://github.com/Aisaandroidios/NZ_VISA_AUTO"
+         target="_blank">
+         GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+
+  <div class="container">
+
+    <div class="main">
+
+      <div>
+
+        <h1 class="title" id="heroTitle">
+          新西兰签证
+          <span class="blue">自动化工具</span>
+        </h1>
+
+        <p class="desc" id="heroDesc">
+          用于 New Zealand Visa 相关流程演示、自动化测试、
+          示例配置管理、公开文档展示与部署说明。
+          当前公开仓库不包含真实源码、私钥、申请人信息或 release 文件。
+        </p>
+
+        <div class="buttons">
+
+          <a class="btn btn-primary"
+             href="https://github.com/Aisaandroidios/NZ_VISA_AUTO"
+             target="_blank"
+             id="btn1">
+             打开 GitHub 仓库
+          </a>
+
+          <a class="btn btn-secondary"
+             href="https://github.com/Aisaandroidios/NZ_VISA_AUTO/blob/main/README.md"
+             target="_blank"
+             id="btn2">
+             查看文档
+          </a>
+
+        </div>
+
+      </div>
+
+      <div class="card">
+
+        <div class="feature">
+          <div class="icon">📦</div>
+
+          <div>
+            <h3 id="f1t">公开打包流程</h3>
+            <p id="f1d">
+              提供公开 Packaging Flow 文档，
+              不暴露内部源码与核心逻辑。
+            </p>
+          </div>
+        </div>
+
+        <div class="feature">
+          <div class="icon">🔒</div>
+
+          <div>
+            <h3 id="f2t">安全边界</h3>
+            <p id="f2d">
+              已屏蔽 src、dist、私钥、真实申请人配置、
+              release zip 与敏感信息。
+            </p>
+          </div>
+        </div>
+
+        <div class="feature">
+          <div class="icon">⚙️</div>
+
+          <div>
+            <h3 id="f3t">示例配置</h3>
+            <p id="f3d">
+              包含 example.json 示例配置，
+              用于测试与部署参考。
+            </p>
+          </div>
+        </div>
+
+        <div class="feature">
+          <div class="icon">📘</div>
+
+          <div>
+            <h3 id="f4t">运行文档</h3>
+            <p id="f4d">
+              包含 README、用户运行说明、
+              安全说明与部署教程。
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<section class="section">
+
+  <h2 class="section-title" id="rulesTitle">
+    中国申请人常见签证规则
+  </h2>
+
+  <div class="rules-grid">
+
+    <div class="rule-card">
+      <h3 id="r1t">📄 基础材料</h3>
+
+      <ul id="r1d">
+        <li>有效护照</li>
+        <li>身份证明文件</li>
+        <li>资金证明</li>
+        <li>旅行计划</li>
+        <li>住宿与往返信息</li>
+      </ul>
+    </div>
+
+    <div class="rule-card">
+      <h3 id="r2t">💰 资金要求</h3>
+
+      <ul id="r2d">
+        <li>银行流水建议稳定</li>
+        <li>避免大额临时转账</li>
+        <li>余额建议覆盖旅行费用</li>
+        <li>建议提供工资流水</li>
+      </ul>
+    </div>
+
+    <div class="rule-card">
+      <h3 id="r3t">✈️ 旅行目的</h3>
+
+      <ul id="r3d">
+        <li>旅游</li>
+        <li>探亲</li>
+        <li>商务访问</li>
+        <li>短期学习</li>
+      </ul>
+    </div>
+
+    <div class="rule-card">
+      <h3 id="r4t">⚠️ 注意事项</h3>
+
+      <ul id="r4d">
+        <li>提交真实材料</li>
+        <li>避免信息不一致</li>
+        <li>确保联系方式有效</li>
+        <li>按要求上传文件</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="notice" id="notice">
+    本项目仅用于公开文档演示、流程研究与测试用途。
+    不提供真实签证服务，不保证申请结果，
+    用户需遵守 New Zealand Immigration 官方要求。
+  </div>
+
+</section>
+
+<div class="footer" id="footer">
+  © 2026 NZ VISA AUTO · Public Documentation Repository
+</div>
+
+<script>
+
+let english = false;
+
+function toggleLanguage(){
+
+  english = !english;
+
+  if(english){
+
+    document.documentElement.lang = "en";
+
+    document.getElementById("heroTitle").innerHTML =
+      'New Zealand <span class="blue">Visa Automation</span>';
+
+    document.getElementById("heroDesc").innerHTML =
+      'Automation toolkit for NZ visa workflow demonstration, testing, deployment references and public documentation hosting.';
+
+    document.getElementById("btn1").innerText =
+      'Open GitHub Repository';
+
+    document.getElementById("btn2").innerText =
+      'Read Documentation';
+
+    document.getElementById("f1t").innerText =
+      'Public Packaging Flow';
+
+    document.getElementById("f1d").innerText =
+      'Provides packaging documentation without exposing internal source code.';
+
+    document.getElementById("f2t").innerText =
+      'Security Boundary';
+
+    document.getElementById("f2d").innerText =
+      'Private source, keys, release files and applicant information are excluded.';
+
+    document.getElementById("f3t").innerText =
+      'Example Configs';
+
+    document.getElementById("f3d").innerText =
+      'Includes example configuration files for testing and deployment.';
+
+    document.getElementById("f4t").innerText =
+      'Documentation';
+
+    document.getElementById("f4d").innerText =
+      'README, deployment guide, runbook and safety instructions included.';
+
+    document.getElementById("rulesTitle").innerText =
+      'Common Visa Rules For Chinese Applicants';
+
+    document.getElementById("r1t").innerText =
+      'Basic Documents';
+
+    document.getElementById("r1d").innerHTML =
+      '<li>Valid passport</li><li>ID documents</li><li>Financial proof</li><li>Travel plan</li><li>Accommodation details</li>';
+
+    document.getElementById("r2t").innerText =
+      'Financial Requirement';
+
+    document.getElementById("r2d").innerHTML =
+      '<li>Stable bank statement</li><li>Avoid temporary large transfers</li><li>Sufficient travel balance</li><li>Salary records recommended</li>';
+
+    document.getElementById("r3t").innerText =
+      'Travel Purpose';
+
+    document.getElementById("r3d").innerHTML =
+      '<li>Tourism</li><li>Family visit</li><li>Business trip</li><li>Short-term study</li>';
+
+    document.getElementById("r4t").innerText =
+      'Important Notes';
+
+    document.getElementById("r4d").innerHTML =
+      '<li>Use real documents</li><li>Avoid inconsistent information</li><li>Provide valid contact info</li><li>Upload files correctly</li>';
+
+    document.getElementById("notice").innerText =
+      'This project is for documentation demonstration and testing only. It does not provide real immigration services or guarantee visa approval.';
+
+    document.getElementById("footer").innerText =
+      '© 2026 NZ VISA AUTO · Public Documentation Repository';
+
+  }else{
+
+    location.reload();
+
+  }
+
+}
+
+</script>
+
+</body>
+</html>
