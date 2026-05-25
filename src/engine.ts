@@ -27,12 +27,15 @@ export async function createSession(config: LoadedConfig): Promise<EngineSession
   });
 
   const browserConfig = config.site.browser;
+  const browserChannel = process.env.NZVA_USE_BUNDLED_CHROMIUM === "1"
+    ? undefined
+    : browserConfig.channel;
   const context = await chromium.launchPersistentContext(
     path.resolve(browserConfig.userDataDir),
     {
       headless: browserConfig.headless,
       slowMo: browserConfig.slowMo,
-      channel: browserConfig.channel,
+      channel: browserChannel,
       viewport: browserConfig.viewport,
     },
   );
@@ -178,11 +181,10 @@ async function executeAction(session: EngineSession, action: PhaseAction) {
 
     case "clickIfPresent":
       ensure(action.selector, action.name, "selector");
-      if ((await page.locator(action.selector).count()) > 0) {
-        await page.locator(action.selector).first().click({ timeout: action.timeoutMs });
+      if (await clickLastVisible(page.locator(action.selector), action.timeoutMs)) {
         await waitForCaptchaToClear(session, action.name);
       } else {
-        process.stdout.write(`Optional selector not present, skipping: ${action.selector}\n`);
+        process.stdout.write(`Optional selector not visible, skipping: ${action.selector}\n`);
       }
       return;
 

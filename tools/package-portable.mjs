@@ -52,6 +52,11 @@ async function main() {
     windowsRuntimeInstaller(),
     "utf8",
   );
+  await writeFile(
+    path.join(releaseDir, "download-dependencies.bat"),
+    windowsDependencyDownloader(),
+    "utf8",
+  );
 
   await writeFile(
     path.join(releaseDir, "run-real-china-pre-submit.command"),
@@ -74,12 +79,19 @@ async function main() {
     unixRuntimeInstaller(),
     "utf8",
   );
+  await writeFile(
+    path.join(releaseDir, "download-dependencies.command"),
+    unixDependencyDownloader(),
+    "utf8",
+  );
 
   await chmod(path.join(releaseDir, "run-real-china-pre-submit.command"), 0o755);
   await chmod(path.join(releaseDir, "run-test-pre-submit.command"), 0o755);
   await chmod(path.join(releaseDir, "install-browser.command"), 0o755);
+  await chmod(path.join(releaseDir, "download-dependencies.command"), 0o755);
 
   await writeFile(path.join(releaseDir, "PORTABLE-README.txt"), portableReadme(), "utf8");
+  await writeFile(path.join(releaseDir, "WINDOWS-README.txt"), windowsReadme(), "utf8");
   await writeFile(path.join(releaseBaseDir, "LATEST-PORTABLE.txt"), `${releaseDir}\n`, "utf8");
   const archivePath = await createArchive(releaseDir);
   if (archivePath) {
@@ -228,7 +240,36 @@ function windowsLauncher(title, sitePath) {
   return `@echo off
 setlocal
 
+if /i not "%~1"=="--inner" (
+  start "NZ Visa Auto Run" cmd /k ""%~f0" --inner"
+  exit /b 0
+)
+
 cd /d "%~dp0"
+
+call :main
+set "EXIT_CODE=%ERRORLEVEL%"
+if not "%EXIT_CODE%"=="0" goto fail
+
+echo.
+echo The browser is configured to stay open for manual takeover.
+echo Press any key to close this window.
+pause >nul
+exit /b 0
+
+:main
+where node >nul 2>nul
+if errorlevel 1 (
+  echo Node.js was not found.
+  echo Please run install-browser.bat first.
+  exit /b 1
+)
+
+if not exist "node_modules\\playwright" (
+  echo Runtime dependencies were not found.
+  echo Please run install-browser.bat first.
+  exit /b 1
+)
 
 set "AUTO_CONTINUE_PAUSES=1"
 set "KEEP_BROWSER_OPEN=1"
@@ -238,11 +279,16 @@ echo KEEP_BROWSER_OPEN=%KEEP_BROWSER_OPEN%
 echo ${title}
 
 node dist\\index.js run --site ${sitePath} --applicant config\\applicant.json
+if errorlevel 1 exit /b %ERRORLEVEL%
 
+exit /b 0
+
+:fail
 echo.
-echo The browser is configured to stay open for manual takeover.
+echo Run failed. Please check the error message above.
 echo Press any key to close this window.
 pause >nul
+exit /b %EXIT_CODE%
 `;
 }
 
@@ -250,18 +296,150 @@ function windowsRuntimeInstaller() {
   return `@echo off
 setlocal
 
+if /i not "%~1"=="--inner" (
+  start "NZ Visa Runtime Installer" cmd /k ""%~f0" --inner"
+  exit /b 0
+)
+
 cd /d "%~dp0"
 
+echo Checking Node.js runtime...
+call :ensure_node
+if errorlevel 1 goto fail
+
+call :refresh_path
+
+where node >nul 2>nul
+if errorlevel 1 (
+  echo Node.js is still not available after installation.
+  echo Please close this window, open a new Command Prompt, and run install-browser.bat again.
+  goto fail
+)
+
+where npm >nul 2>nul
+if errorlevel 1 (
+  echo npm is still not available after installation.
+  echo Please close this window, open a new Command Prompt, and run install-browser.bat again.
+  goto fail
+)
+
+echo.
+echo Node version:
+node --version
+echo npm version:
+call npm --version
+
+echo.
 echo Installing production runtime dependencies...
-npm install --omit=dev
+call npm install --omit=dev
+if errorlevel 1 goto fail
 
 echo.
 echo Installing Chromium for Playwright in this environment...
 node node_modules\\playwright\\cli.js install chromium
+if errorlevel 1 goto fail
 
 echo.
-echo Runtime install finished. Press any key to close this window.
+echo Runtime install finished. You can now run run-test-pre-submit.bat or run-real-china-pre-submit.bat.
+echo Press any key to close this window.
 pause >nul
+exit /b 0
+
+:ensure_node
+where node >nul 2>nul
+if not errorlevel 1 (
+  where npm >nul 2>nul
+  if not errorlevel 1 exit /b 0
+)
+
+echo Node.js or npm was not found.
+echo Trying to install Node.js LTS with Windows winget...
+where winget >nul 2>nul
+if errorlevel 1 (
+  echo winget is not available on this computer.
+  echo Please install Node.js LTS manually from https://nodejs.org/ and run this script again.
+  start "" "https://nodejs.org/en/download"
+  exit /b 1
+)
+
+winget install -e --id OpenJS.NodeJS.LTS --accept-package-agreements --accept-source-agreements
+if errorlevel 1 (
+  echo Node.js installation failed.
+  exit /b 1
+)
+
+exit /b 0
+
+:refresh_path
+set "PATH=%ProgramFiles%\\nodejs;%AppData%\\npm;%PATH%"
+exit /b 0
+
+:fail
+echo.
+echo Environment install failed. Check the message above.
+echo Press any key to close this window.
+pause >nul
+exit /b 1
+`;
+}
+
+function windowsDependencyDownloader() {
+  return `@echo off
+setlocal
+
+if /i not "%~1"=="--inner" (
+  start "NZ Visa Dependency Downloader" cmd /k ""%~f0" --inner"
+  exit /b 0
+)
+
+cd /d "%~dp0"
+
+where node >nul 2>nul
+if errorlevel 1 (
+  echo Node.js was not found.
+  echo This script is for computers that already have Node.js.
+  echo Please run install-browser.bat instead, or install Node.js first.
+  echo Press any key to close this window.
+  pause >nul
+  exit /b 1
+)
+
+where npm >nul 2>nul
+if errorlevel 1 (
+  echo npm was not found.
+  echo Please run install-browser.bat instead, or reinstall Node.js.
+  echo Press any key to close this window.
+  pause >nul
+  exit /b 1
+)
+
+echo Node version:
+node --version
+echo npm version:
+call npm --version
+
+echo.
+echo Downloading production runtime dependencies...
+call npm install --omit=dev
+if errorlevel 1 goto fail
+
+echo.
+echo Downloading Chromium for Playwright...
+node node_modules\\playwright\\cli.js install chromium
+if errorlevel 1 goto fail
+
+echo.
+echo Dependencies are ready. You can now run the test or real flow script.
+echo Press any key to close this window.
+pause >nul
+exit /b 0
+
+:fail
+echo.
+echo Dependency download failed. Please check the error message above.
+echo Press any key to close this window.
+pause >nul
+exit /b 1
 `;
 }
 
@@ -287,6 +465,39 @@ read -r -p "Press Enter to close this window..."
 `;
 }
 
+function unixDependencyDownloader() {
+  return `#!/bin/bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR"
+
+if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
+  echo "Node.js or npm was not found."
+  echo "This script is for computers that already have Node.js."
+  echo "Please run install-browser.command instead, or install Node.js first."
+  read -r -p "Press Enter to close this window..."
+  exit 1
+fi
+
+echo "Node version:"
+node --version
+echo "npm version:"
+npm --version
+
+echo
+echo "Downloading production runtime dependencies..."
+npm install --omit=dev
+
+echo
+echo "Downloading Chromium for Playwright..."
+node node_modules/playwright/cli.js install chromium
+
+echo
+read -r -p "Dependencies are ready. Press Enter to close this window..."
+`;
+}
+
 function unixRuntimeInstaller() {
   return `#!/bin/bash
 set -euo pipefail
@@ -294,6 +505,59 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
+load_homebrew_path() {
+  if [ -x "/opt/homebrew/bin/brew" ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  elif [ -x "/usr/local/bin/brew" ]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+  fi
+}
+
+install_homebrew() {
+  echo "Homebrew is not available. Installing Homebrew first..."
+  if ! command -v curl >/dev/null 2>&1; then
+    echo "curl is not available, so Homebrew cannot be downloaded automatically."
+    echo "Please install Homebrew manually from https://brew.sh/ and run this script again."
+    if command -v open >/dev/null 2>&1; then
+      open "https://brew.sh/"
+    fi
+    read -r -p "Press Enter to close this window..."
+    exit 1
+  fi
+
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  load_homebrew_path
+
+  if ! command -v brew >/dev/null 2>&1; then
+    echo "Homebrew installation finished, but brew is not available in this shell yet."
+    echo "Please close this window, open a new Terminal, and run install-browser.command again."
+    read -r -p "Press Enter to close this window..."
+    exit 1
+  fi
+}
+
+load_homebrew_path
+
+echo "Checking Node.js runtime..."
+if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
+  echo "Node.js or npm was not found."
+
+  if ! command -v brew >/dev/null 2>&1; then
+    install_homebrew
+  fi
+
+  echo "Installing Node.js with Homebrew..."
+  brew install node
+  load_homebrew_path
+fi
+
+echo
+echo "Node version:"
+node --version
+echo "npm version:"
+npm --version
+
+echo
 echo "Installing production runtime dependencies..."
 npm install --omit=dev
 
@@ -312,11 +576,12 @@ function portableReadme() {
 This folder is a runtime package. It contains compiled files in dist/ and does not require the original src/*.ts development sources.
 
 Before running on a new machine:
-1. Install Node.js.
-2. Run install-browser.bat on Windows or install-browser.command on macOS once.
-3. Update config/applicant.json with the correct applicant and INZ login values if this is a template package.
-4. Use run-test-pre-submit.* for the Germany rehearsal flow.
-5. Use run-real-china-pre-submit.* for the real China flow.
+1. Run install-browser.bat on Windows or install-browser.command on macOS once.
+2. If Node.js is already installed, you may run download-dependencies.bat/.command instead.
+3. The installer checks Node.js, installs dependencies, and installs Playwright Chromium.
+4. Update config/applicant.json with the correct applicant and INZ login values if this is a template package.
+5. Use run-test-pre-submit.* for the Germany rehearsal flow.
+6. Use run-real-china-pre-submit.* for the real China flow.
 
 Notes:
 - Template packages intentionally use config/applicant.example.json as the portable config/applicant.json seed.
@@ -325,6 +590,35 @@ Notes:
 - The browser is intentionally left open for manual takeover at the final stage.
 - Final legal government submission and payment remain manual.
 - If CAPTCHA appears, solve it manually in the browser. The script will continue after it clears.
+`;
+}
+
+function windowsReadme() {
+  return `\uFEFFWindows 使用步骤 / Windows Quick Start
+
+1. 先解压 zip，不要直接在压缩包里面运行。
+   Extract the zip first. Do not run files from inside the zip preview.
+
+2. 第一次使用，双击 install-browser.bat。
+   First run: double-click install-browser.bat.
+
+3. 如果电脑已经安装 Node.js，也可以双击 download-dependencies.bat，只下载依赖。
+   If Node.js is already installed, you can double-click download-dependencies.bat to download dependencies only.
+
+4. 如果电脑没有 Node.js，install-browser.bat 会尝试自动安装。
+   如果 Windows 弹出安装确认，请点“是/允许/同意”。
+   If Node.js is missing, the script will try to install it automatically.
+   Approve the Windows installer prompts if they appear.
+
+5. 安装完成后：
+   德国测试：双击 run-test-pre-submit.bat
+   中国真实：双击 run-real-china-pre-submit.bat
+
+6. 如果窗口一闪就关，通常是没有先解压，或者被杀毒/系统策略拦截。
+   新版本脚本会在出错时停住，请把窗口里的报错截图发给开发者。
+
+7. 运行中如果出现验证码，在浏览器里手动完成验证码，程序会继续。
+   If CAPTCHA appears, solve it manually in the browser. The script will continue.
 `;
 }
 

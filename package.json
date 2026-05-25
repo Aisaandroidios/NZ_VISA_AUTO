@@ -20,7 +20,12 @@
     "license:issue": "node tools/license-issue.mjs",
     "package:licensed": "node tools/package-portable.mjs --licensed",
     "package:portable": "node tools/package-portable.mjs",
-    "package:portable:zip": "node tools/package-portable.mjs"
+    "package:portable:zip": "node tools/package-portable.mjs",
+    "package:standalone": "node tools/package-standalone.mjs --licensed --target=win64",
+    "package:standalone:all": "node tools/package-standalone.mjs --licensed --target=all",
+    "package:standalone:mac-arm64": "node tools/package-standalone.mjs --licensed --target=mac-arm64",
+    "package:standalone:mac-x64": "node tools/package-standalone.mjs --licensed --target=mac-x64",
+    "package:standalone:template": "node tools/package-standalone.mjs --licensed=false --target=win64"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
