@@ -240,12 +240,13 @@ function windowsLauncher(title, sitePath) {
   return `@echo off
 setlocal
 
-if /i not "%~1"=="--inner" (
-  start "NZ Visa Auto Run" cmd /k ""%~f0" --inner"
-  exit /b 0
-)
+title NZ Visa Auto Run
 
 cd /d "%~dp0"
+
+echo NZ Visa Auto Run
+echo This window will stay open if anything fails.
+echo.
 
 call :main
 set "EXIT_CODE=%ERRORLEVEL%"
@@ -296,12 +297,13 @@ function windowsRuntimeInstaller() {
   return `@echo off
 setlocal
 
-if /i not "%~1"=="--inner" (
-  start "NZ Visa Runtime Installer" cmd /k ""%~f0" --inner"
-  exit /b 0
-)
+title NZ Visa Runtime Installer
 
 cd /d "%~dp0"
+
+echo NZ Visa Runtime Installer
+echo This window will stay open if anything fails.
+echo.
 
 echo Checking Node.js runtime...
 call :ensure_node
@@ -387,12 +389,13 @@ function windowsDependencyDownloader() {
   return `@echo off
 setlocal
 
-if /i not "%~1"=="--inner" (
-  start "NZ Visa Dependency Downloader" cmd /k ""%~f0" --inner"
-  exit /b 0
-)
+title NZ Visa Dependency Downloader
 
 cd /d "%~dp0"
+
+echo NZ Visa Dependency Downloader
+echo This window will stay open if anything fails.
+echo.
 
 where node >nul 2>nul
 if errorlevel 1 (
