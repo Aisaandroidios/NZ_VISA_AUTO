@@ -20,8 +20,8 @@
     "screenshotDir": "artifacts",
     "defaultActionDelayMs": 0,
     "fieldDelayMs": 0,
-    "clickDelayMs": 800,
-    "navigationDelayMs": 1000
+    "clickDelayMs": 0,
+    "navigationDelayMs": 0
   },
   "phases": [
     {
@@ -61,11 +61,6 @@
       "selector": "input[type='submit']"
     },
     {
-      "name": "Wait after login submit",
-      "action": "sleep",
-      "durationMs": 5000
-    },
-    {
       "name": "Wait and immediately open Germany application entry",
       "action": "waitAndClickOpen",
       "selector": "a:has-text('GERMANY')",
@@ -77,11 +72,6 @@
       "waitUntil": "commit",
       "timeoutMs": 3600000,
       "reload": true
-    },
-    {
-      "name": "Wait after opening Germany application entry",
-      "action": "sleep",
-      "durationMs": 0
     },
     {
       "name": "Wait and immediately click Germany Apply Now",
@@ -96,20 +86,10 @@
       "reload": false
     },
     {
-      "name": "Wait after clicking Germany Apply Now",
-      "action": "sleep",
-      "durationMs": 0
-    },
-    {
       "name": "Return to working holiday homepage if multiple applications message appears",
       "action": "clickIfPresent",
       "selector": "a:has-text('here')",
       "timeoutMs": 10000
-    },
-    {
-      "name": "Wait after returning from multiple applications message",
-      "action": "sleep",
-      "durationMs": 1000
     },
     {
       "name": "Open existing incomplete application if listed",
@@ -122,11 +102,6 @@
       "action": "clickIfPresent",
       "selector": "a:has-text('GERMANY')",
       "timeoutMs": 10000
-    },
-    {
-      "name": "Wait after re-entering Germany application from forms list",
-      "action": "sleep",
-      "durationMs": 1000
     }
   ],
   "submit": {
@@ -292,12 +267,8 @@
       {
         "name": "Go to identification page",
         "action": "click",
-        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_nextImageButton"
-      },
-      {
-        "name": "Pause for CAPTCHA before identification",
-        "action": "pause",
-        "message": "If the site shows rs-captcha before Identification, complete it manually in the browser. Once the Identification page is visible, press Enter to continue."
+        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_nextImageButton",
+        "preActionDelayMs": 500
       },
       {
         "name": "Wait for identification page",
@@ -350,12 +321,8 @@
       {
         "name": "Go to occupation page",
         "action": "click",
-        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_nextImageButton"
-      },
-      {
-        "name": "Pause for CAPTCHA before occupation",
-        "action": "pause",
-        "message": "If the site shows rs-captcha before Occupation details, complete it manually in the browser. Once the Occupation details page is visible, press Enter to continue."
+        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_nextImageButton",
+        "preActionDelayMs": 500
       },
       {
         "name": "Wait for occupation page",
@@ -372,17 +339,14 @@
       {
         "name": "Save occupation page and skip occupation details",
         "action": "click",
-        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_validateButton"
+        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_validateButton",
+        "preActionDelayMs": 500
       },
       {
         "name": "Go to health page after occupation save",
         "action": "click",
-        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_nextImageButton"
-      },
-      {
-        "name": "Pause for CAPTCHA before health",
-        "action": "pause",
-        "message": "If the site shows rs-captcha before Health, complete it manually in the browser. Once the Health page is visible, press Enter to continue."
+        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_nextImageButton",
+        "preActionDelayMs": 500
       },
       {
         "name": "Wait for health page",
@@ -447,12 +411,8 @@
       {
         "name": "Go to character page",
         "action": "click",
-        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_nextImageButton"
-      },
-      {
-        "name": "Pause for CAPTCHA before character",
-        "action": "pause",
-        "message": "If the site shows rs-captcha before Character, complete it manually in the browser. Once the Character page is visible, press Enter to continue."
+        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_nextImageButton",
+        "preActionDelayMs": 500
       },
       {
         "name": "Wait for character page",
@@ -529,12 +489,8 @@
       {
         "name": "Go to WHS specific page",
         "action": "click",
-        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_nextImageButton"
-      },
-      {
-        "name": "Pause for CAPTCHA before WHS specific",
-        "action": "pause",
-        "message": "If the site shows rs-captcha before WHS Specific, complete it manually in the browser. Once the WHS Specific page is visible, press Enter to continue."
+        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_nextImageButton",
+        "preActionDelayMs": 500
       },
       {
         "name": "Wait for WHS specific page",
@@ -593,12 +549,8 @@
       {
         "name": "Save WHS specific page",
         "action": "click",
-        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_validateButton"
-      },
-      {
-        "name": "Pause for CAPTCHA after WHS specific save",
-        "action": "pause",
-        "message": "If saving WHS Specific sends the site to rs-captcha or a review/declaration page behind CAPTCHA, complete it manually in the browser. The script will continue after the CAPTCHA page clears."
+        "selector": "#ContentPlaceHolder1_wizardPageFooter_wizardPageNavigator_validateButton",
+        "preActionDelayMs": 500
       },
       {
         "name": "Click non-final submit to open confirm submit page",
@@ -625,9 +577,10 @@
         "fullPage": true
       },
       {
-        "name": "Pause at final manual takeover before final submit",
-        "action": "pause",
-        "message": "The application is now at the final confirmation stage. Review the Confirm Submit page and take over manually at the final Submit Now step."
+        "name": "Wait for payment page after manual final submit and fill card details",
+        "action": "fillPaymentCardDetails",
+        "timeoutMs": 1200000,
+        "intervalMs": 500
       }
     ]
   }

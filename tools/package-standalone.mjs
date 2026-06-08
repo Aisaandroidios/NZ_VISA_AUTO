@@ -137,7 +137,7 @@ async function writeWindowsLaunchers(releaseDir) {
   await writeFile(
     path.join(releaseDir, "run-test-pre-submit.bat"),
     windowsStandaloneLauncher(
-      "Running the single supported test flow (Germany) to the final manual submit handoff...",
+      "Running the single supported test flow (Germany) to manual final submit, then payment page autofill; final Pay is not clicked...",
       "config/site.germany.json",
     ),
     "utf8",
@@ -145,8 +145,16 @@ async function writeWindowsLaunchers(releaseDir) {
   await writeFile(
     path.join(releaseDir, "run-real-china-pre-submit.bat"),
     windowsStandaloneLauncher(
-      "Running real China flow to the final manual submit handoff...",
+      "Running real China flow to manual final submit, then payment autofill and final Pay click...",
       "config/site.json",
+    ),
+    "utf8",
+  );
+  await writeFile(
+    path.join(releaseDir, "run-real-taiwan-pre-submit.bat"),
+    windowsStandaloneLauncher(
+      "Running real Taiwan flow to manual final submit, then payment autofill and final Pay click...",
+      "config/site.taiwan.json",
     ),
     "utf8",
   );
@@ -156,7 +164,7 @@ async function writeMacLaunchers(releaseDir) {
   await writeFile(
     path.join(releaseDir, "run-test-pre-submit.command"),
     macStandaloneLauncher(
-      "Running the single supported test flow (Germany) to the final manual submit handoff...",
+      "Running the single supported test flow (Germany) to manual final submit, then payment page autofill; final Pay is not clicked...",
       "config/site.germany.json",
     ),
     "utf8",
@@ -164,13 +172,22 @@ async function writeMacLaunchers(releaseDir) {
   await writeFile(
     path.join(releaseDir, "run-real-china-pre-submit.command"),
     macStandaloneLauncher(
-      "Running real China flow to the final manual submit handoff...",
+      "Running real China flow to manual final submit, then payment autofill and final Pay click...",
       "config/site.json",
+    ),
+    "utf8",
+  );
+  await writeFile(
+    path.join(releaseDir, "run-real-taiwan-pre-submit.command"),
+    macStandaloneLauncher(
+      "Running real Taiwan flow to manual final submit, then payment autofill and final Pay click...",
+      "config/site.taiwan.json",
     ),
     "utf8",
   );
   await chmod(path.join(releaseDir, "run-test-pre-submit.command"), 0o755).catch(() => {});
   await chmod(path.join(releaseDir, "run-real-china-pre-submit.command"), 0o755).catch(() => {});
+  await chmod(path.join(releaseDir, "run-real-taiwan-pre-submit.command"), 0o755).catch(() => {});
 }
 
 async function obfuscateReleaseDist(releaseDir) {
@@ -458,15 +475,16 @@ No install-browser, download-dependencies, Node.js install, or npm install is re
 
 Usage:
 1. Extract the archive first. Do not run from inside archive preview.
-2. Windows: double-click run-test-pre-submit.bat or run-real-china-pre-submit.bat.
-3. macOS: double-click run-test-pre-submit.command or run-real-china-pre-submit.command.
+2. Windows: double-click run-test-pre-submit.bat, run-real-china-pre-submit.bat, or run-real-taiwan-pre-submit.bat.
+3. macOS: double-click run-test-pre-submit.command, run-real-china-pre-submit.command, or run-real-taiwan-pre-submit.command.
 
 Notes:
 - The package is intentionally large because it includes Chromium.
 - If Windows blocks the first launch, choose More info, then Run anyway.
 - If macOS blocks the first launch, right-click the .command file, choose Open, then confirm.
 - If CAPTCHA appears, solve it manually in the browser. The script will continue.
-- Final legal government submission and payment remain manual.
+- Germany test flow stops before the final Pay click.
+- Final Submit is manual. China real flow fills payment details and clicks final Pay when payment values are configured.
 `;
 }
 
@@ -693,6 +711,9 @@ async function writeLatest(target, releaseDir, archivePath) {
   const name = target.toUpperCase().replace(/-/g, "-");
   await writeFile(path.join(releaseBaseDir, `LATEST-STANDALONE-${name}.txt`), `${releaseDir}\n`, "utf8");
   await writeFile(path.join(releaseBaseDir, `LATEST-STANDALONE-${name}-ARCHIVE.txt`), `${archivePath}\n`, "utf8");
+  if (archivePath.endsWith(".zip")) {
+    await writeFile(path.join(releaseBaseDir, `LATEST-STANDALONE-${name}-ZIP.txt`), `${archivePath}\n`, "utf8");
+  }
 }
 
 function resolveTargets(rawTarget) {

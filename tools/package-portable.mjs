@@ -34,7 +34,7 @@ async function main() {
   await writeFile(
     path.join(releaseDir, "run-real-china-pre-submit.bat"),
     windowsLauncher(
-      "Running real China flow to the final manual submit handoff...",
+      "Running real China flow to manual final submit, then payment autofill and final Pay click...",
       "config/site.json",
     ),
     "utf8",
@@ -42,7 +42,7 @@ async function main() {
   await writeFile(
     path.join(releaseDir, "run-test-pre-submit.bat"),
     windowsLauncher(
-      "Running the single supported test flow (Germany) to the final manual submit handoff...",
+      "Running the single supported test flow (Germany) to manual final submit, then payment page autofill; final Pay is not clicked...",
       "config/site.germany.json",
     ),
     "utf8",
@@ -61,7 +61,7 @@ async function main() {
   await writeFile(
     path.join(releaseDir, "run-real-china-pre-submit.command"),
     unixLauncher(
-      "Running real China flow to the final manual submit handoff...",
+      "Running real China flow to manual final submit, then payment autofill and final Pay click...",
       "config/site.json",
     ),
     "utf8",
@@ -69,7 +69,7 @@ async function main() {
   await writeFile(
     path.join(releaseDir, "run-test-pre-submit.command"),
     unixLauncher(
-      "Running the single supported test flow (Germany) to the final manual submit handoff...",
+      "Running the single supported test flow (Germany) to manual final submit, then payment page autofill; final Pay is not clicked...",
       "config/site.germany.json",
     ),
     "utf8",
@@ -590,8 +590,8 @@ Notes:
 - Template packages intentionally use config/applicant.example.json as the portable config/applicant.json seed.
 - Licensed packages include a signed config/applicant.json plus config/license.json.
 - If config/security.json requires a license, changing locked applicant fields will stop the program.
-- The browser is intentionally left open for manual takeover at the final stage.
-- Final legal government submission and payment remain manual.
+- Germany test flow stops before the final Pay click.
+- Final Submit is manual. China real flow fills payment details and clicks final Pay when payment values are configured.
 - If CAPTCHA appears, solve it manually in the browser. The script will continue after it clears.
 `;
 }

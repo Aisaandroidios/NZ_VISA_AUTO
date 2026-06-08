@@ -8,7 +8,7 @@ set "KEEP_BROWSER_OPEN=1"
 
 echo AUTO_CONTINUE_PAUSES=%AUTO_CONTINUE_PAUSES%
 echo KEEP_BROWSER_OPEN=%KEEP_BROWSER_OPEN%
-echo Running real China flow to the final manual submit handoff...
+echo Running real China flow to manual final submit, then payment autofill and final Pay click...
 
 call pnpm.cmd run run -- --site config/site.json --applicant config/applicant.json
 

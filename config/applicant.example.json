@@ -83,5 +83,15 @@
     "fax": "",
     "representedByAgent": "No",
     "hasCreditCard": "Yes"
+  },
+  "payment": {
+    "payerName": "${env.NZVA_PAYMENT_PAYER_NAME}",
+    "cardholderName": "${env.NZVA_PAYMENT_CARDHOLDER_NAME}",
+    "cardNumber": "${env.NZVA_PAYMENT_CARD_NUMBER}",
+    "expiryMonth": "${env.NZVA_PAYMENT_EXPIRY_MONTH}",
+    "expiryYear": "${env.NZVA_PAYMENT_EXPIRY_YEAR}",
+    "securityCode": "${env.NZVA_PAYMENT_SECURITY_CODE}",
+    "email": "${env.NZVA_PAYMENT_EMAIL}",
+    "postalCode": "${env.NZVA_PAYMENT_POSTAL_CODE}"
   }
 }

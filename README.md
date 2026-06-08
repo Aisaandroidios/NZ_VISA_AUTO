@@ -2,7 +2,7 @@
 
 这个项目用于新西兰 Immigration Online Working Holiday 页面自动填写表单。当前主要目标是中国 Working Holiday 入口；德国配置用于正式前演练，因为流程结构基本一致，适合测试“进入申请、填写、保存、进入确认页、勾选声明”的完整链路。
 
-脚本不会绕过 CAPTCHA，也不会替用户完成最终法律提交或付款。遇到 CAPTCHA 时，请在浏览器里手动完成；脚本会在页面恢复后继续。到 `Confirm Submit` 页面后，脚本会勾选 Yes 声明并停留在最终 `SUBMIT` 前，交给人工确认。
+脚本不会绕过 CAPTCHA、验证码或支付风控。遇到 CAPTCHA 时，请在浏览器里手动完成；脚本会在页面恢复后继续。到 `Confirm Submit` 页面后，脚本会勾选 Yes 声明并截图，然后等待申请人手动点击最终 `SUBMIT`。进入付款页后，德国测试配置只填写银行卡字段并停在最终 `Pay` 前；中国真实配置会填写银行卡字段并继续点击最终 `Pay`。
 
 ## 目录说明
 
@@ -69,6 +69,7 @@ chmod +x *.command
 - `character`：品行问题。请按本人真实情况改。
 - `whsSpecific`：Working Holiday 专属问题。请按本人真实情况改。
 - `meta.phoneMobile`、`meta.hasCreditCard` 等：联系方式和信用卡声明。
+- `payment`：付款页银行卡字段，建议用 `NZVA_PAYMENT_*` 环境变量，不要把真实卡号直接写进仓库。
 
 日期格式按官网页面格式填写，例如：
 
@@ -76,6 +77,21 @@ chmod +x *.command
 15/08/1998
 15/09/2033
 ```
+
+付款页字段默认从环境变量读取，例如：
+
+```text
+NZVA_PAYMENT_PAYER_NAME=
+NZVA_PAYMENT_CARDHOLDER_NAME=
+NZVA_PAYMENT_CARD_NUMBER=
+NZVA_PAYMENT_EXPIRY_MONTH=
+NZVA_PAYMENT_EXPIRY_YEAR=
+NZVA_PAYMENT_SECURITY_CODE=
+NZVA_PAYMENT_EMAIL=
+NZVA_PAYMENT_POSTAL_CODE=
+```
+
+没有设置这些值时，脚本不会自动填写银行卡信息；中国真实流程也不会点击最终 `Pay`。
 
 ## 正式中国流程
 
@@ -96,7 +112,8 @@ run-real-china-pre-submit.bat
 7. Occupation details 当前按跳过/保存处理，避免自动选错职业分类。
 8. 点击前一个 `SUBMIT` 进入 `Confirm Submit`。
 9. 自动勾选确认页全部 Yes。
-10. 停在最终 `SUBMIT` 前，浏览器保持打开，由人工确认最终提交和后续付款。
+10. 等申请人检查并手动点击最终 `SUBMIT`。
+11. 出现付款页后，自动填写 `payment` 里配置的银行卡字段，并点击最终 `Pay` 完成付款提交。
 
 ## 德国测试流程
 
@@ -106,7 +123,7 @@ run-real-china-pre-submit.bat
 run-test-pre-submit.bat
 ```
 
-德国测试会使用同一套填写逻辑跑到 `Confirm Submit` 页，并自动勾选 Yes。测试时不要点击最终 `SUBMIT`，避免提交真实申请。
+德国测试会使用同一套填写逻辑跑到 `Confirm Submit` 页并自动勾选 Yes。最终 `SUBMIT` 由申请人手动点击；随后会进入付款链路并自动填写已配置的付款字段，但不会点击最终付款按钮。
 
 [//]: # (## 打包给别的电脑)
 
@@ -173,22 +190,25 @@ run-test-pre-submit.bat
 
 ## 节奏设置
 
-当前策略是“填写快，Next 慢一点”：
+当前策略是“抢入口尽量快，表单页跳转稍微稳一点”：
 
 - 字段填写/下拉：快速执行。
-- `Save`、前一个 `SUBMIT`、`Apply Now`：保持普通速度。
-- `Next` 和页面跳转：额外等待，让页面加载稳定。
+- 入口、`Apply Now`：保持最快检查和点击，不加额外等待。
+- 表单页 `Next` / `Save`：点击前等待 `500ms`，避免连续跳页太快触发风控或加载提示。
+- 页面跳转后：依靠后续 `waitFor` 等待目标页面字段出现。
 
 这些默认值在 `config/site.json` 和 `config/site.germany.json` 的 `defaults` 里：
 
 ```json
-"defaultActionDelayMs": 80,
-"fieldDelayMs": 80,
-"clickDelayMs": 800,
-"navigationDelayMs": 3500
+"defaultActionDelayMs": 0,
+"fieldDelayMs": 0,
+"clickDelayMs": 0,
+"navigationDelayMs": 0
 ```
 
-如果网络很慢，可以把 `navigationDelayMs` 调大一点。
+单个表单页导航按钮上的 `preActionDelayMs` 用来控制点击前等待，当前主流程设置为 `500`。
+
+如果网络很慢，优先调大对应 `waitFor` 动作的 `timeoutMs`。
 
 ## 安全边界
 
@@ -196,4 +216,4 @@ run-test-pre-submit.bat
 - 不要同时开多个脚本抢同一个账号。
 - 不要尝试绕过 CAPTCHA、验证码、风控或支付安全流程。
 - CAPTCHA 出现时人工完成即可。
-- 最终政府提交和付款必须由申请人自己确认。
+- 最终 `SUBMIT` 由申请人手动点击；中国真实配置会在付款页填卡并点击最终付款，德国测试配置只填付款页字段，不点击最终付款。
